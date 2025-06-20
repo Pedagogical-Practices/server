@@ -1,0 +1,24 @@
+type Form {
+  # Example field (placeholder)
+  exampleField: Int
+}
+
+input CreateFormInput {
+  # Example field (placeholder)
+  exampleField: Int
+}
+
+input UpdateFormInput {
+  id: Int!
+}
+
+type Query {
+  form: [Form]!
+  form(id: Int!): Form
+}
+
+type Mutation {
+  createForm(createFormInput: CreateFormInput!): Form!
+  updateForm(updateFormInput: UpdateFormInput!): Form!
+  removeForm(id: Int!): Form
+}

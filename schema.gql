@@ -1,0 +1,69 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input CreateFormInput {
+  fields: [FormFieldInput!]!
+  name: String!
+}
+
+type FormDto {
+  fields: [FormFieldDto!]!
+  id: String!
+  name: String!
+}
+
+type FormFieldDto {
+  chapter: String
+  consistencyCondition: String
+  description: String
+  errorType: String
+  height: String
+  hint: String
+  inconsistencyMessage: String
+  label: String
+  placeholder: String
+  question: String
+  questionNumber: String
+  required: Boolean
+  requirementLevel: String
+  type: String!
+  value: String
+  variableName: String
+}
+
+input FormFieldInput {
+  chapter: String
+  consistencyCondition: String
+  description: String
+  errorType: String
+  height: String
+  hint: String
+  inconsistencyMessage: String
+  label: String
+  placeholder: String
+  question: String
+  questionNumber: String
+  required: Boolean
+  requirementLevel: String
+  type: String!
+  value: String
+  variableName: String
+}
+
+type Mutation {
+  createForm(createFormInput: CreateFormInput!): FormDto!
+  removeForm(id: String!): FormDto!
+  updateForm(updateFormInput: UpdateFormInput!): FormDto!
+}
+
+type Query {
+  form(id: String!): FormDto!
+  forms: [FormDto!]!
+}
+
+input UpdateFormInput {
+  fields: [FormFieldInput!]
+  id: String!
+  name: String
+}
