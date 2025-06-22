@@ -2,9 +2,21 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type AuthPayload {
+  token: String!
+  user: UserDto!
+}
+
 input CreateFormInput {
   fields: [FormFieldInput!]!
   name: String!
+}
+
+input CreateUserInput {
+  email: String!
+  name: String!
+  password: String!
+  role: String!
 }
 
 type FormDto {
@@ -53,17 +65,36 @@ input FormFieldInput {
 
 type Mutation {
   createForm(createFormInput: CreateFormInput!): FormDto!
+  createUser(createUserInput: CreateUserInput!): AuthPayload!
+  login(email: String!, password: String!): AuthPayload!
   removeForm(id: String!): FormDto!
   updateForm(updateFormInput: UpdateFormInput!): FormDto!
+  updateUser(updateUserInput: UpdateUserInput!): UserDto!
 }
 
 type Query {
   form(id: String!): FormDto!
   forms: [FormDto!]!
+  me: UserDto
 }
 
 input UpdateFormInput {
   fields: [FormFieldInput!]
   id: String!
   name: String
+}
+
+input UpdateUserInput {
+  _id: ID!
+  email: String
+  name: String
+  password: String
+}
+
+type UserDto {
+  _id: ID!
+  email: String!
+  name: String!
+  password: String!
+  role: String!
 }

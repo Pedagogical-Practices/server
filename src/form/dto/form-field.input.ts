@@ -1,7 +1,7 @@
-import { ObjectType, Field } from '@nestjs/graphql';
+import { InputType, Field } from '@nestjs/graphql';
 
-@ObjectType()
-export class FormFieldDto {
+@InputType()
+export class FormFieldInput {
   @Field()
   type: string;
 
