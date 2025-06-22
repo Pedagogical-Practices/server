@@ -1,6 +1,5 @@
-// form/dto/update-form.input.ts
 import { Field, InputType } from '@nestjs/graphql';
-import { FormFieldDto } from './form-field.dto';
+import { FormFieldInput } from './form-field.input';
 
 @InputType()
 export class UpdateFormInput {
@@ -10,6 +9,6 @@ export class UpdateFormInput {
   @Field({ nullable: true })
   name: string;
 
-  @Field(() => [FormFieldDto], { nullable: true })
-  fields: FormFieldDto[];
+  @Field(() => [FormFieldInput], { nullable: true })
+  fields: FormFieldInput[];
 }

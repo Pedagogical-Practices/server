@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { FormModule } from './form/form.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -23,12 +24,13 @@ import { FormModule } from './form/form.module';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
-      // autoSchemaFile: true,
       sortSchema: true,
       debug: true,
       playground: true,
+      context: ({ req }) => ({ req }),
     }),
     FormModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
