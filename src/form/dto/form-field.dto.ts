@@ -1,4 +1,6 @@
+// ./src/form/dto/form-field.dto.ts
 import { ObjectType, Field } from '@nestjs/graphql';
+import { OptionDto } from './option.dto';
 
 @ObjectType()
 export class FormFieldDto {
@@ -6,47 +8,68 @@ export class FormFieldDto {
   type: string;
 
   @Field({ nullable: true })
-  label?: string;
+  label: string;
 
   @Field({ nullable: true })
-  value?: string;
+  value: string;
 
   @Field({ nullable: true })
-  variableName?: string;
+  variableName: string;
 
   @Field({ nullable: true })
-  placeholder?: string;
+  placeholder: string;
 
   @Field({ nullable: true })
-  hint?: string;
+  hint: string;
 
   @Field({ nullable: true })
-  height?: string;
+  height: string;
+
+  @Field()
+  required: boolean;
 
   @Field({ nullable: true })
-  required?: boolean;
+  chapter: string;
 
   @Field({ nullable: true })
-  chapter?: string;
+  question: string;
 
   @Field({ nullable: true })
-  question?: string;
+  questionNumber: string;
 
   @Field({ nullable: true })
-  questionNumber?: string;
+  consistencyCondition: string;
 
   @Field({ nullable: true })
-  consistencyCondition?: string;
+  inconsistencyMessage: string;
 
   @Field({ nullable: true })
-  inconsistencyMessage?: string;
+  errorType: string;
 
   @Field({ nullable: true })
-  errorType?: string;
+  description: string;
 
   @Field({ nullable: true })
-  description?: string;
+  requirementLevel: string;
+
+  @Field(() => [OptionDto], { nullable: true })
+  options?: OptionDto[];
 
   @Field({ nullable: true })
-  requirementLevel?: string;
+  disabled: boolean;
+
+  @Field({ nullable: true })
+  readonly: boolean;
+
+  @Field({ nullable: true })
+  name: string;
+
+  @Field({ nullable: true })
+  specificType: string;
+
+  @Field({ nullable: true })
+  color: string;
+
+  @Field(() => [String], { nullable: true })
+  rules: string[];
 }
