@@ -7,6 +7,8 @@ import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { UserDto } from '../auth/dto/user.dto';
 
 @Resolver(() => FormDto)
 export class FormResolver {
@@ -15,16 +17,21 @@ export class FormResolver {
   @Mutation(() => FormDto)
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('admin')
-  async createForm(@Args('createFormInput') createFormInput: CreateFormInput) {
-    return this.formService.create(createFormInput);
+  async createForm(
+    @Args('createFormInput') createFormInput: CreateFormInput,
+    @CurrentUser() user: UserDto,
+  ) {
+    return this.formService.create(createFormInput, user._id);
   }
 
   @Query(() => [FormDto])
+  @UseGuards(AuthGuard)
   async forms() {
     return this.formService.findAll();
   }
 
   @Query(() => FormDto)
+  @UseGuards(AuthGuard)
   async form(@Args('id') id: string) {
     return this.formService.findOne(id);
   }

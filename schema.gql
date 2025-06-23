@@ -19,26 +19,41 @@ input CreateUserInput {
   role: String!
 }
 
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type FormDto {
+  _id: ID!
+  createdAt: DateTime!
+  createdBy: UserDto!
   fields: [FormFieldDto!]!
-  id: String!
   name: String!
+  updatedAt: DateTime!
 }
 
 type FormFieldDto {
   chapter: String
+  color: String
   consistencyCondition: String
   description: String
+  disabled: Boolean
   errorType: String
   height: String
   hint: String
   inconsistencyMessage: String
   label: String
+  name: String
+  options: [OptionDto!]
   placeholder: String
   question: String
   questionNumber: String
-  required: Boolean
+  readonly: Boolean
+  required: Boolean!
   requirementLevel: String
+  rules: [String!]
+  specificType: String
   type: String!
   value: String
   variableName: String
@@ -46,18 +61,25 @@ type FormFieldDto {
 
 input FormFieldInput {
   chapter: String
+  color: String
   consistencyCondition: String
   description: String
+  disabled: Boolean
   errorType: String
   height: String
   hint: String
   inconsistencyMessage: String
   label: String
+  name: String
+  options: [OptionInput!]
   placeholder: String
   question: String
   questionNumber: String
+  readonly: Boolean
   required: Boolean
   requirementLevel: String
+  rules: [String!]
+  specificType: String
   type: String!
   value: String
   variableName: String
@@ -70,6 +92,16 @@ type Mutation {
   removeForm(id: String!): FormDto!
   updateForm(updateFormInput: UpdateFormInput!): FormDto!
   updateUser(updateUserInput: UpdateUserInput!): UserDto!
+}
+
+type OptionDto {
+  label: String!
+  value: String!
+}
+
+input OptionInput {
+  label: String!
+  value: String!
 }
 
 type Query {
