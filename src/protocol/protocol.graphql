@@ -1,0 +1,35 @@
+# protocol.graphql
+type Protocol {
+  _id: ID!
+  courseId: ID!
+  name: String!
+  module: String!
+  formId: ID!
+  createdAt: String!
+}
+
+input CreateProtocolInput {
+  courseId: ID!
+  name: String!
+  module: String!
+  formId: ID!
+}
+
+input UpdateProtocolInput {
+  id: ID!
+  courseId: ID
+  name: String
+  module: String
+  formId: ID
+}
+
+type Query {
+  protocols(courseId: ID!): [Protocol!]!
+  protocol(id: ID!): Protocol
+}
+
+type Mutation {
+  createProtocol(createProtocolInput: CreateProtocolInput!): Protocol!
+  updateProtocol(updateProtocolInput: UpdateProtocolInput!): Protocol!
+  deleteProtocol(id: ID!): Boolean!
+}

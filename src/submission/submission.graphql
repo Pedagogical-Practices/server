@@ -1,0 +1,33 @@
+# submission.graphql
+type Submission {
+  _id: ID!
+  protocolId: ID!
+  formId: ID!
+  data: JSON!
+  submittedBy: String!
+  createdAt: String!
+}
+
+input CreateSubmissionInput {
+  protocolId: ID!
+  formId: ID!
+  data: JSON!
+}
+
+input UpdateSubmissionInput {
+  id: ID!
+  protocolId: ID
+  formId: ID
+  data: JSON
+}
+
+type Query {
+  submissions(protocolId: ID!): [Submission!]!
+  submission(id: ID!): Submission
+}
+
+type Mutation {
+  submitProtocol(createSubmissionInput: CreateSubmissionInput!): Submission!
+  updateSubmission(updateSubmissionInput: UpdateSubmissionInput!): Submission!
+  deleteSubmission(id: ID!): Boolean!
+}

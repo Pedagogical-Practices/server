@@ -7,9 +7,37 @@ type AuthPayload {
   user: UserDto!
 }
 
+type Course {
+  _id: ID!
+  assignedGroups: [String!]!
+  createdAt: String!
+  createdBy: String!
+  institution: String!
+  name: String!
+}
+
+input CreateCourseInput {
+  assignedGroups: [String!]!
+  institution: String!
+  name: String!
+}
+
 input CreateFormInput {
   fields: [FormFieldInput!]!
   name: String!
+}
+
+input CreateProtocolInput {
+  courseId: ID!
+  formId: ID!
+  module: String!
+  name: String!
+}
+
+input CreateSubmissionInput {
+  data: JSON!
+  formId: ID!
+  protocolId: ID!
 }
 
 input CreateUserInput {
@@ -85,12 +113,26 @@ input FormFieldInput {
   variableName: String
 }
 
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
 type Mutation {
+  createCourse(createCourseInput: CreateCourseInput!): Course!
   createForm(createFormInput: CreateFormInput!): FormDto!
+  createProtocol(createProtocolInput: CreateProtocolInput!): Protocol!
   createUser(createUserInput: CreateUserInput!): AuthPayload!
+  deleteCourse(id: String!): Boolean!
+  deleteProtocol(id: String!): Boolean!
+  deleteSubmission(id: String!): Boolean!
   login(email: String!, password: String!): AuthPayload!
   removeForm(id: String!): FormDto!
+  submitProtocol(createSubmissionInput: CreateSubmissionInput!): Submission!
+  updateCourse(updateCourseInput: UpdateCourseInput!): Course!
   updateForm(updateFormInput: UpdateFormInput!): FormDto!
+  updateProtocol(updateProtocolInput: UpdateProtocolInput!): Protocol!
+  updateSubmission(updateSubmissionInput: UpdateSubmissionInput!): Submission!
   updateUser(updateUserInput: UpdateUserInput!): UserDto!
 }
 
@@ -104,16 +146,53 @@ input OptionInput {
   value: String!
 }
 
+type Protocol {
+  _id: ID!
+  courseId: ID!
+  createdAt: String!
+  createdBy: String!
+  formId: ID!
+  module: String!
+  name: String!
+}
+
 type Query {
+  course(id: String!): Course!
+  courses: [Course!]!
   form(id: String!): FormDto!
   forms: [FormDto!]!
   me: UserDto
+  protocol(id: String!): Protocol!
+  protocols(courseId: String!): [Protocol!]!
+  submission(id: String!): Submission!
+  submissions(protocolId: String!): [Submission!]!
+}
+
+type Submission {
+  _id: ID!
+  createdAt: String!
+  data: JSON!
+  formId: ID!
+  protocolId: ID!
+  submittedBy: String!
+}
+
+input UpdateCourseInput {
+  id: ID!
 }
 
 input UpdateFormInput {
   fields: [FormFieldInput!]
   id: String!
   name: String
+}
+
+input UpdateProtocolInput {
+  id: ID!
+}
+
+input UpdateSubmissionInput {
+  id: ID!
 }
 
 input UpdateUserInput {

@@ -1,8 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { ObjectType, Field, ID } from '@nestjs/graphql';
 
 @Schema()
 export class User extends Document {
+  @Field(() => ID)
   declare _id: Types.ObjectId;
 
   @Prop({ required: true })

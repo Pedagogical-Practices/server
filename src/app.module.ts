@@ -8,6 +8,9 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { FormModule } from './form/form.module';
 import { AuthModule } from './auth/auth.module';
+import { CourseModule } from './course/course.module';
+import { ProtocolModule } from './protocol/protocol.module';
+import { SubmissionModule } from './submission/submission.module';
 
 @Module({
   imports: [
@@ -31,6 +34,9 @@ import { AuthModule } from './auth/auth.module';
     }),
     FormModule,
     AuthModule,
+    CourseModule,
+    ProtocolModule,
+    SubmissionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

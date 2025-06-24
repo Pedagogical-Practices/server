@@ -37,9 +37,9 @@ export class AuthResolver {
   @Query(() => UserDto, { nullable: true })
   @UseGuards(AuthGuard)
   async me(@CurrentUser() user: UserDto) {
-    console.log('me resolver: Current user:', user);
+    // console.log('me resolver: Current user:', user);
     const foundUser = await this.authService.findOne(user._id);
-    console.log('me resolver: Found user:', foundUser);
+    // console.log('me resolver: Found user:', foundUser);
     return foundUser;
   }
 }
