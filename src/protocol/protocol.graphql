@@ -1,11 +1,26 @@
-# protocol.graphql
+# src/protocol/protocol.graphql
 type Protocol {
   _id: ID!
   courseId: ID!
   name: String!
   module: String!
   formId: ID!
+  createdBy: String!
   createdAt: String!
+  attendanceRecords: [AttendanceRecord!]!
+}
+
+type AttendanceRecord {
+  week: String!
+  date: String!
+  topic: String!
+  hours: Int!
+  group: String!
+  classType: String!
+  other: String
+  advisorSignature: String!
+  tutorSignature: String!
+  observations: String
 }
 
 input CreateProtocolInput {
@@ -23,6 +38,20 @@ input UpdateProtocolInput {
   formId: ID
 }
 
+input CreateAttendanceRecordInput {
+  protocolId: ID!
+  week: String!
+  date: String!
+  topic: String!
+  hours: Int!
+  group: String!
+  classType: String!
+  other: String
+  advisorSignature: String!
+  tutorSignature: String!
+  observations: String
+}
+
 type Query {
   protocols(courseId: ID!): [Protocol!]!
   protocol(id: ID!): Protocol
@@ -32,4 +61,7 @@ type Mutation {
   createProtocol(createProtocolInput: CreateProtocolInput!): Protocol!
   updateProtocol(updateProtocolInput: UpdateProtocolInput!): Protocol!
   deleteProtocol(id: ID!): Boolean!
+  createAttendanceRecord(
+    createAttendanceRecordInput: CreateAttendanceRecordInput!
+  ): AttendanceRecord!
 }

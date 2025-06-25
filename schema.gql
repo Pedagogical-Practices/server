@@ -2,6 +2,19 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type AttendanceRecord {
+  advisorSignature: String!
+  classType: String!
+  date: String!
+  group: String!
+  hours: Int!
+  observations: String
+  other: String
+  topic: String!
+  tutorSignature: String!
+  week: String!
+}
+
 type AuthPayload {
   token: String!
   user: UserDto!
@@ -14,6 +27,20 @@ type Course {
   createdBy: String!
   institution: String!
   name: String!
+}
+
+input CreateAttendanceRecordInput {
+  advisorSignature: String!
+  classType: String!
+  date: String!
+  group: String!
+  hours: Int!
+  observations: String
+  other: String
+  protocolId: ID!
+  topic: String!
+  tutorSignature: String!
+  week: String!
 }
 
 input CreateCourseInput {
@@ -119,6 +146,7 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 scalar JSON
 
 type Mutation {
+  createAttendanceRecord(createAttendanceRecordInput: CreateAttendanceRecordInput!): AttendanceRecord!
   createCourse(createCourseInput: CreateCourseInput!): Course!
   createForm(createFormInput: CreateFormInput!): FormDto!
   createProtocol(createProtocolInput: CreateProtocolInput!): Protocol!
@@ -148,6 +176,7 @@ input OptionInput {
 
 type Protocol {
   _id: ID!
+  attendanceRecords: [AttendanceRecord!]!
   courseId: ID!
   createdAt: String!
   createdBy: String!
@@ -188,7 +217,11 @@ input UpdateFormInput {
 }
 
 input UpdateProtocolInput {
+  courseId: ID
+  formId: ID
   id: ID!
+  module: String
+  name: String
 }
 
 input UpdateSubmissionInput {
