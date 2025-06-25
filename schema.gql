@@ -99,6 +99,7 @@ type FormFieldDto {
   hint: String
   inconsistencyMessage: String
   label: String
+  multiple: Boolean
   name: String
   options: [OptionDto!]
   placeholder: String
@@ -125,6 +126,7 @@ input FormFieldInput {
   hint: String
   inconsistencyMessage: String
   label: String
+  multiple: Boolean
   name: String
   options: [OptionInput!]
   placeholder: String

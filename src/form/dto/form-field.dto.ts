@@ -1,4 +1,3 @@
-// ./src/form/dto/form-field.dto.ts
 import { ObjectType, Field } from '@nestjs/graphql';
 import { OptionDto } from './option.dto';
 
@@ -72,4 +71,7 @@ export class FormFieldDto {
 
   @Field(() => [String], { nullable: true })
   rules: string[];
+
+  @Field({ nullable: true }) // Añadido
+  multiple: boolean;
 }

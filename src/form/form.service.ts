@@ -1,10 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Form } from './schemas/form.schema';
 import { CreateFormInput } from './dto/create-form.input';
 import { UpdateFormInput } from './dto/update-form.input';
-import { Types } from 'mongoose';
 
 @Injectable()
 export class FormService {
@@ -16,33 +15,48 @@ export class FormService {
   ): Promise<Form> {
     const createdForm = new this.formModel({
       ...createFormInput,
-      createdBy: new Types.ObjectId(userId),
+      createdBy: userId,
     });
     return createdForm.save();
   }
 
   async findAll(): Promise<Form[]> {
-    return this.formModel.find().populate('createdBy', 'name email').exec();
+    return this.formModel.find().populate('createdBy').exec();
   }
 
-  async findOne(id: string): Promise<Form | null> {
-    return this.formModel
-      .findById(id)
-      .populate('createdBy', 'name email')
+  async findOne(id: string): Promise<Form> {
+    const form = await this.formModel.findById(id).populate('createdBy').exec();
+    if (!form) {
+      throw new NotFoundException(`Form #${id} not found`);
+    }
+    return form;
+  }
+
+  async update(id: string, updateFormInput: UpdateFormInput): Promise<Form> {
+    const { name, fields } = updateFormInput;
+    const updatedForm = await this.formModel
+      .findByIdAndUpdate(
+        id,
+        {
+          name: name || undefined,
+          fields: fields || undefined,
+          updatedAt: new Date(),
+        },
+        { new: true },
+      )
+      .populate('createdBy')
       .exec();
+    if (!updatedForm) {
+      throw new NotFoundException(`Form #${id} not found`);
+    }
+    return updatedForm;
   }
 
-  async update(
-    id: string,
-    updateFormInput: UpdateFormInput,
-  ): Promise<Form | null> {
-    return this.formModel
-      .findByIdAndUpdate(id, updateFormInput, { new: true })
-      .populate('createdBy', 'name email')
-      .exec();
-  }
-
-  async remove(id: string): Promise<Form | null> {
-    return this.formModel.findByIdAndDelete(id).exec();
+  async remove(id: string): Promise<Form> {
+    const form = await this.formModel.findByIdAndDelete(id).exec();
+    if (!form) {
+      throw new NotFoundException(`Form #${id} not found`);
+    }
+    return form;
   }
 }

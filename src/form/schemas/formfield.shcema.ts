@@ -1,6 +1,14 @@
-// ./src/form/schemas/formfield.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+
+@Schema()
+export class Option {
+  @Prop({ required: true })
+  label: string;
+
+  @Prop({ required: true })
+  value: string;
+}
 
 @Schema()
 export class FormField {
@@ -52,8 +60,8 @@ export class FormField {
   @Prop()
   requirementLevel: string;
 
-  @Prop()
-  options: string[];
+  @Prop([Option]) // Cambiado de string[] a Option[]
+  options: Option[];
 
   @Prop()
   disabled: boolean;
@@ -70,8 +78,11 @@ export class FormField {
   @Prop()
   color: string;
 
-  @Prop()
+  @Prop([String])
   rules: string[];
+
+  @Prop() // Añadido
+  multiple: boolean;
 }
 
 export const FormFieldSchema = SchemaFactory.createForClass(FormField);
