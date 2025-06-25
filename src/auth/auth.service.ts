@@ -36,7 +36,7 @@ export class AuthService {
       email: user.email,
       role: user.role,
     };
-    console.log('login: Payload:', payload);
+    // console.log('login: Payload:', payload);
     return {
       token: this.jwtService.sign(payload, { expiresIn: '7d' }),
       user: this.mapMongooseUserToDto(user),
@@ -82,9 +82,9 @@ export class AuthService {
   }
 
   async findOne(id: string): Promise<UserDto | null> {
-    console.log('authService.findOne: ID:', id);
+    // console.log('authService.findOne: ID:', id);
     const user = await this.userModel.findById(id);
-    console.log('authService.findOne: User:', user);
+    // console.log('authService.findOne: User:', user);
     return user ? this.mapMongooseUserToDto(user) : null;
   }
 }

@@ -1,0 +1,33 @@
+# course.graphql
+type Course {
+  _id: ID!
+  name: String!
+  institution: String!
+  assignedGroups: [String!]!
+  createdBy: String!
+  createdAt: String!
+}
+
+input CreateCourseInput {
+  name: String!
+  institution: String!
+  assignedGroups: [String!]!
+}
+
+input UpdateCourseInput {
+  id: ID!
+  name: String
+  institution: String
+  assignedGroups: [String!]
+}
+
+type Query {
+  courses: [Course!]!
+  course(id: ID!): Course
+}
+
+type Mutation {
+  createCourse(createCourseInput: CreateCourseInput!): Course!
+  updateCourse(updateCourseInput: UpdateCourseInput!): Course!
+  deleteCourse(id: ID!): Boolean!
+}

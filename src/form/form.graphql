@@ -1,24 +1,64 @@
 type Form {
-  # Example field (placeholder)
-  exampleField: Int
+  _id: ID!
+  name: String!
+  fields: [FormField!]!
+  createdBy: String!
+  createdAt: String!
+}
+
+type FormField {
+  type: String!
+  label: String!
+  value: String
+  variableName: String
+  placeholder: String
+  hint: String
+  height: String
+  required: Boolean
+  chapter: String
+  question: String
+  questionNumber: String
+  consistencyCondition: String
+  inconsistencyMessage: String
+  errorType: String
+  description: String
+  requirementLevel: String
+  options: [String!]
+  disabled: Boolean
+  readonly: Boolean
+  name: String
+  specificType: String
+  color: String
+  rules: [String!]
 }
 
 input CreateFormInput {
-  # Example field (placeholder)
-  exampleField: Int
+  name: String!
+  fields: [FormFieldInput!]!
 }
 
-input UpdateFormInput {
-  id: Int!
-}
-
-type Query {
-  form: [Form]!
-  form(id: Int!): Form
-}
-
-type Mutation {
-  createForm(createFormInput: CreateFormInput!): Form!
-  updateForm(updateFormInput: UpdateFormInput!): Form!
-  removeForm(id: Int!): Form
+input FormFieldInput {
+  type: String!
+  label: String!
+  value: String
+  variableName: String
+  placeholder: String
+  hint: String
+  height: String
+  required: Boolean
+  chapter: String
+  question: String
+  questionNumber: String
+  consistencyCondition: String
+  inconsistencyMessage: String
+  errorType: String
+  description: String
+  requirementLevel: String
+  options: [String!]
+  disabled: Boolean
+  readonly: Boolean
+  name: String
+  specificType: String
+  color: String
+  rules: [String!]
 }

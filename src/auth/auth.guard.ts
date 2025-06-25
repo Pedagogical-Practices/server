@@ -16,18 +16,18 @@ export class AuthGuard implements CanActivate {
     const ctx = GqlExecutionContext.create(context);
     const { req } = ctx.getContext();
     const authHeader = req.headers.authorization;
-    console.log('AuthGuard: Authorization header:', authHeader);
+    // console.log('AuthGuard: Authorization header:', authHeader);
     if (!authHeader) {
       throw new UnauthorizedException('No token provided');
     }
     const token = authHeader.replace('Bearer ', '');
     try {
       const payload: UserDto = this.jwtService.verify(token);
-      console.log('AuthGuard: Payload:', payload);
+      // console.log('AuthGuard: Payload:', payload);
       req.user = payload;
       return true;
     } catch (error) {
-      console.error('AuthGuard: Token verification failed:', error);
+      // console.error('AuthGuard: Token verification failed:', error);
       throw new UnauthorizedException('Invalid token');
     }
   }
