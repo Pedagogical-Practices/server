@@ -1,4 +1,5 @@
-import { Resolver, Mutation, Query, Args } from '@nestjs/graphql';
+// server/src/auth/auth.resolver.ts
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { AuthPayload } from './dto/auth-payload.dto';
 import { CreateUserInput } from './dto/create-user.input';
@@ -8,20 +9,24 @@ import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from './auth.guard';
 import { CurrentUser } from './current-user.decorator';
 
-@Resolver()
+@Resolver(() => UserDto)
 export class AuthResolver {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private authService: AuthService) {}
 
   @Mutation(() => AuthPayload)
   async login(
     @Args('email') email: string,
     @Args('password') password: string,
-  ) {
+  ): Promise<AuthPayload> {
+    console.log('auth.resolver.ts: login, email:', email);
     return this.authService.login(email, password);
   }
 
   @Mutation(() => AuthPayload)
-  async createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
+  async createUser(
+    @Args('createUserInput') createUserInput: CreateUserInput,
+  ): Promise<AuthPayload> {
+    console.log('auth.resolver.ts: createUser, input:', createUserInput);
     return this.authService.register(createUserInput);
   }
 
@@ -29,17 +34,18 @@ export class AuthResolver {
   @UseGuards(AuthGuard)
   async updateUser(
     @Args('updateUserInput') updateUserInput: UpdateUserInput,
-    @CurrentUser() user: UserDto,
-  ) {
-    return this.authService.updateProfile(user._id, updateUserInput);
+    @CurrentUser() user: any,
+  ): Promise<UserDto> {
+    console.log('auth.resolver.ts: updateUser, user.sub:', user.sub);
+    return this.authService.updateProfile(user.sub, updateUserInput);
   }
 
   @Query(() => UserDto, { nullable: true })
   @UseGuards(AuthGuard)
-  async me(@CurrentUser() user: UserDto) {
-    // console.log('me resolver: Current user:', user);
-    const foundUser = await this.authService.findOne(user._id);
-    // console.log('me resolver: Found user:', foundUser);
-    return foundUser;
+  async me(@CurrentUser() user: any): Promise<UserDto | null> {
+    console.log('auth.resolver.ts: me query, user.sub:', user.sub);
+    const userData = await this.authService.findOne(user.sub);
+    console.log('auth.resolver.ts: me query, userData:', userData);
+    return userData;
   }
 }

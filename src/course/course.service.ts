@@ -14,6 +14,7 @@ export class CourseService {
     createCourseInput: CreateCourseInput,
     userId: string,
   ): Promise<Course> {
+    console.log('Creating course by:', userId);
     const course = new this.courseModel({
       ...createCourseInput,
       createdBy: userId,
@@ -25,6 +26,7 @@ export class CourseService {
     updateCourseInput: UpdateCourseInput,
     userId: string,
   ): Promise<Course | null> {
+    console.log('updateCourse: userId:', userId);
     const { id, ...updateData } = updateCourseInput;
     return this.courseModel
       .findByIdAndUpdate(
@@ -41,10 +43,10 @@ export class CourseService {
   }
 
   async findAll(): Promise<Course[]> {
-    return this.courseModel.find().exec();
+    return this.courseModel.find().populate('createdBy').exec();
   }
 
   async findOne(id: string): Promise<Course | null> {
-    return this.courseModel.findById(id).exec();
+    return this.courseModel.findById(id).populate('createdBy').exec();
   }
 }

@@ -24,7 +24,7 @@ type Course {
   _id: ID!
   assignedGroups: [String!]!
   createdAt: String!
-  createdBy: String!
+  createdBy: UserDto!
   institution: String!
   name: String!
 }
