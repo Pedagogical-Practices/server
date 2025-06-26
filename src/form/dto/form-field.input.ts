@@ -1,4 +1,3 @@
-// ./src/form/dto/form-field.inputs.dto.ts
 import { InputType, Field } from '@nestjs/graphql';
 import { OptionInput } from './option.input';
 
@@ -56,20 +55,23 @@ export class FormFieldInput {
   options?: OptionInput[];
 
   @Field({ nullable: true })
-  disabled: boolean;
+  disabled?: boolean;
 
   @Field({ nullable: true })
-  readonly: boolean;
+  readonly?: boolean;
 
   @Field({ nullable: true })
-  name: string;
+  name?: string;
 
   @Field({ nullable: true })
-  specificType: string;
+  specificType?: string;
 
   @Field({ nullable: true })
-  color: string;
+  color?: string;
 
   @Field(() => [String], { nullable: true })
-  rules: string[];
+  rules?: string[];
+
+  @Field({ nullable: true }) // Añadido
+  multiple?: boolean;
 }

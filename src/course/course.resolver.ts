@@ -26,6 +26,7 @@ export class CourseResolver {
     @Args('updateCourseInput') updateCourseInput: UpdateCourseInput,
     @CurrentUser() user: any,
   ): Promise<Course | null> {
+    console.log('createCourse: Current user:', user);
     return this.courseService.update(updateCourseInput, user.sub);
   }
 
