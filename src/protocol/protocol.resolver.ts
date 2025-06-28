@@ -1,7 +1,7 @@
-// src/protocol/protocol.resolver.ts
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { ProtocolService } from './protocol.service';
-import { Protocol, AttendanceRecord } from './schemas/protocol.schema';
+import { Protocol } from './schemas/protocol.schema';
+import { AttendanceRecord } from '../attendance/schemas/attendance.schema'; // Importar desde attendance
 import {
   CreateProtocolInput,
   UpdateProtocolInput,

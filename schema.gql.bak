@@ -41,7 +41,7 @@ input CreateAttendanceRecordInput {
   hours: Int!
   observations: String
   other: String
-  protocolId: String!
+  protocolId: ID!
   topic: String!
   tutorSignature: String!
   week: String!
