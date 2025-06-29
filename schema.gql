@@ -253,9 +253,8 @@ input UpdateUserInput {
 }
 
 type UserDto {
-  _id: ID!
   email: String!
   name: String!
-  password: String!
   role: String!
+  sub: ID!
 }
