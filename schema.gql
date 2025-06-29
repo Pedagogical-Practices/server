@@ -28,7 +28,7 @@ type Course {
   _id: ID!
   assignedGroups: [String!]!
   createdAt: String!
-  createdBy: UserDto!
+  createdBy: User!
   institution: String!
   name: String!
 }
@@ -250,6 +250,13 @@ input UpdateUserInput {
   email: String
   name: String
   password: String
+}
+
+type User {
+  _id: ID!
+  email: String!
+  name: String!
+  role: String!
 }
 
 type UserDto {

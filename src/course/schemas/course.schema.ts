@@ -1,9 +1,7 @@
-// course.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document, Types, Schema as MongooseSchema } from 'mongoose';
 import { ObjectType, Field, ID } from '@nestjs/graphql';
-// import { User } from '../../auth/schemas/user.schema';
-import { UserDto } from '../../auth/dto/user.dto';
+import { User } from '../../auth/schemas/user.schema';
 
 @ObjectType()
 @Schema({ timestamps: true })
@@ -23,9 +21,9 @@ export class Course extends Document {
   @Prop({ type: [String], required: true })
   assignedGroups: string[];
 
-  @Field(() => UserDto) // Cambiar a User en lugar de String
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true }) // Referencia a User
-  createdBy: Types.ObjectId | UserDto;
+  @Field(() => User)
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
+  createdBy: User;
 
   @Field()
   createdAt: string;
