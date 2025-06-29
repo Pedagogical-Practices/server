@@ -19,10 +19,9 @@ export class AuthService {
 
   private mapMongooseUserToDto(user: User): UserDto {
     return {
-      _id: user._id.toString(),
+      sub: user._id.toString(),
       name: user.name,
       email: user.email,
-      password: user.password,
       role: user.role,
     };
   }

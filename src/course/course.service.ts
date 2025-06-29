@@ -19,7 +19,8 @@ export class CourseService {
       ...createCourseInput,
       createdBy: userId,
     });
-    return course.save();
+    const savedCourse = await course.save();
+    return savedCourse.populate('createdBy');
   }
 
   async update(
@@ -34,6 +35,7 @@ export class CourseService {
         { ...updateData, createdBy: userId },
         { new: true },
       )
+      .populate('createdBy')
       .exec();
   }
 

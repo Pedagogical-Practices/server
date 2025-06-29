@@ -1,40 +1,7 @@
-// src/protocol/schemas/protocol.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { ObjectType, Field, ID, Int } from '@nestjs/graphql';
-
-@ObjectType()
-export class AttendanceRecord {
-  @Field()
-  week: string;
-
-  @Field()
-  date: string;
-
-  @Field()
-  topic: string;
-
-  @Field(() => Int)
-  hours: number;
-
-  @Field()
-  group: string;
-
-  @Field()
-  classType: string;
-
-  @Field({ nullable: true })
-  other?: string;
-
-  @Field()
-  advisorSignature: string;
-
-  @Field()
-  tutorSignature: string;
-
-  @Field({ nullable: true })
-  observations?: string;
-}
+import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { AttendanceRecord } from '../../attendance/schemas/attendance.schema';
 
 @ObjectType()
 @Schema({ timestamps: true })
@@ -66,8 +33,12 @@ export class Protocol extends Document {
   createdAt: string;
 
   @Field(() => [AttendanceRecord])
-  @Prop({ type: [Object], default: [] })
+  @Prop({
+    type: [{ type: Types.ObjectId, ref: 'AttendanceRecord' }],
+    default: [],
+  })
   attendanceRecords: AttendanceRecord[];
 }
 
 export const ProtocolSchema = SchemaFactory.createForClass(Protocol);
+export type ProtocolDocument = Protocol & Document;
