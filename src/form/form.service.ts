@@ -17,7 +17,8 @@ export class FormService {
       ...createFormInput,
       createdBy: userId,
     });
-    return createdForm.save();
+    const savedForm = await createdForm.save();
+    return savedForm.populate('createdBy');
   }
 
   async findAll(): Promise<Form[]> {

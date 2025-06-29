@@ -21,7 +21,7 @@ export class FormResolver {
     @Args('createFormInput') createFormInput: CreateFormInput,
     @CurrentUser() user: UserDto,
   ) {
-    return this.formService.create(createFormInput, user._id);
+    return this.formService.create(createFormInput, user.sub);
   }
 
   @Query(() => [FormDto])

@@ -11,6 +11,7 @@ import { AuthModule } from './auth/auth.module';
 import { CourseModule } from './course/course.module';
 import { ProtocolModule } from './protocol/protocol.module';
 import { SubmissionModule } from './submission/submission.module';
+import { AttendanceModule } from './attendance/attendance.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { SubmissionModule } from './submission/submission.module';
     CourseModule,
     ProtocolModule,
     SubmissionModule,
+    AttendanceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

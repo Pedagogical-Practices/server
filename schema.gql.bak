@@ -28,7 +28,7 @@ type Course {
   _id: ID!
   assignedGroups: [String!]!
   createdAt: String!
-  createdBy: User!
+  createdBy: UserDto!
   institution: String!
   name: String!
 }
@@ -41,7 +41,7 @@ input CreateAttendanceRecordInput {
   hours: Int!
   observations: String
   other: String
-  protocolId: String!
+  protocolId: ID!
   topic: String!
   tutorSignature: String!
   week: String!
@@ -252,16 +252,10 @@ input UpdateUserInput {
   password: String
 }
 
-type User {
+type UserDto {
   _id: ID!
   email: String!
   name: String!
+  password: String!
   role: String!
-}
-
-type UserDto {
-  email: String!
-  name: String!
-  role: String!
-  sub: ID!
 }

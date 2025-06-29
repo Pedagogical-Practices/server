@@ -1,8 +1,8 @@
-// src/protocol/protocol.service.ts
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Protocol, AttendanceRecord } from './schemas/protocol.schema';
+import { Model, Types } from 'mongoose'; // Agregar Types
+import { Protocol } from './schemas/protocol.schema';
+import { AttendanceRecord } from '../attendance/schemas/attendance.schema';
 import {
   CreateProtocolInput,
   UpdateProtocolInput,
@@ -55,7 +55,13 @@ export class ProtocolService {
     if (!protocol || protocol.createdBy !== userId) {
       throw new Error('No autorizado o protocolo no encontrado');
     }
-    protocol.attendanceRecords.push(createAttendanceRecordInput);
+    const newRecord: AttendanceRecord = {
+      ...createAttendanceRecordInput,
+      _id: new Types.ObjectId(),
+      submittedBy: userId,
+      createdAt: new Date().toISOString(),
+    } as AttendanceRecord;
+    protocol.attendanceRecords.push(newRecord);
     await protocol.save();
     return protocol.attendanceRecords[protocol.attendanceRecords.length - 1];
   }
