@@ -3,7 +3,7 @@ import { ObjectType, Field, ID } from '@nestjs/graphql';
 @ObjectType()
 export class UserDto {
   @Field(() => ID)
-  sub: string;
+  _id: string; // Cambiado de 'sub' a '_id'
 
   @Field()
   name: string;
@@ -13,4 +13,7 @@ export class UserDto {
 
   @Field()
   role: string;
+
+  // @Field() // Eliminado: No exponer la contraseña
+  // password: string;
 }

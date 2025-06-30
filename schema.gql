@@ -58,9 +58,16 @@ input CreateFormInput {
   name: String!
 }
 
+input CreatePracticeInput {
+  advisorId: ID!
+  courseName: String!
+  institutionName: String!
+  protocolId: ID!
+  studentId: ID!
+}
+
 input CreateProtocolInput {
-  courseId: ID!
-  formId: ID!
+  formIds: [ID!]!
   module: String!
   name: String!
 }
@@ -83,6 +90,26 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type FilledForm {
+  form: ID!
+  submission: ID
+}
+
+type FilledFormDto {
+  form: Form!
+  formId: ID!
+  submission: Submission
+  submissionId: ID
+}
+
+type Form {
+  _id: ID!
+  createdAt: String!
+  createdBy: ID!
+  fields: [FormField!]!
+  name: String!
+}
+
 type FormDto {
   _id: ID!
   createdAt: DateTime!
@@ -90,6 +117,33 @@ type FormDto {
   fields: [FormFieldDto!]!
   name: String!
   updatedAt: DateTime!
+}
+
+type FormField {
+  chapter: String
+  color: String
+  consistencyCondition: String
+  description: String
+  disabled: Boolean
+  errorType: String
+  height: String
+  hint: String
+  inconsistencyMessage: String
+  label: String
+  multiple: Boolean
+  name: String
+  options: [Option!]
+  placeholder: String
+  question: String
+  questionNumber: String
+  readonly: Boolean
+  required: Boolean
+  requirementLevel: String
+  rules: [String!]
+  specificType: String
+  type: String!
+  value: String
+  variableName: String
 }
 
 type FormFieldDto {
@@ -164,6 +218,7 @@ type Mutation {
   createAttendanceRecord(createAttendanceRecordInput: CreateAttendanceRecordInput!): AttendanceRecord!
   createCourse(createCourseInput: CreateCourseInput!): Course!
   createForm(createFormInput: CreateFormInput!): FormDto!
+  createPractice(createPracticeInput: CreatePracticeInput!): PracticeDto!
   createProtocol(createProtocolInput: CreateProtocolInput!): Protocol!
   createUser(createUserInput: CreateUserInput!): AuthPayload!
   deleteCourse(id: String!): Boolean!
@@ -171,13 +226,21 @@ type Mutation {
   deleteSubmission(id: String!): Boolean!
   generateAttendancePDF(input: GenerateAttendancePDFInput!): String!
   login(email: String!, password: String!): AuthPayload!
+  registerFormSubmission(formId: String!, practiceId: String!, submissionId: String!): PracticeDto!
   removeForm(id: String!): FormDto!
+  removePractice(id: String!): Boolean!
   submitProtocol(createSubmissionInput: CreateSubmissionInput!): Submission!
   updateCourse(updateCourseInput: UpdateCourseInput!): Course!
   updateForm(updateFormInput: UpdateFormInput!): FormDto!
+  updatePractice(updatePracticeInput: UpdatePracticeInput!): PracticeDto!
   updateProtocol(updateProtocolInput: UpdateProtocolInput!): Protocol!
   updateSubmission(updateSubmissionInput: UpdateSubmissionInput!): Submission!
   updateUser(updateUserInput: UpdateUserInput!): UserDto!
+}
+
+type Option {
+  label: String!
+  value: String!
 }
 
 type OptionDto {
@@ -190,13 +253,32 @@ input OptionInput {
   value: String!
 }
 
+type PracticeDto {
+  _id: ID!
+  advisor: UserDto!
+  courseName: String!
+  createdAt: String!
+  createdBy: UserDto!
+  filledForms: [FilledFormDto!]!
+  institutionName: String!
+  protocol: Protocol!
+  status: String!
+  student: UserDto!
+}
+
+enum PracticeStatus {
+  ASSIGNED
+  COMPLETED
+  IN_PROGRESS
+  REVIEWED
+}
+
 type Protocol {
   _id: ID!
   attendanceRecords: [AttendanceRecord!]!
-  courseId: ID!
   createdAt: String!
   createdBy: String!
-  formId: ID!
+  forms: [Form!]!
   module: String!
   name: String!
 }
@@ -208,8 +290,10 @@ type Query {
   form(id: String!): FormDto!
   forms: [FormDto!]!
   me: UserDto
+  practice(id: String!): PracticeDto!
+  practices: [PracticeDto!]!
   protocol(id: String!): Protocol!
-  protocols(courseId: String!): [Protocol!]!
+  protocols: [Protocol!]!
   submission(id: String!): Submission!
   submissions(protocolId: String!): [Submission!]!
 }
@@ -233,9 +317,18 @@ input UpdateFormInput {
   name: String
 }
 
+input UpdatePracticeInput {
+  advisorId: ID
+  courseName: String
+  id: ID!
+  institutionName: String
+  protocolId: ID
+  status: PracticeStatus
+  studentId: ID
+}
+
 input UpdateProtocolInput {
-  courseId: ID
-  formId: ID
+  formIds: [ID!]
   id: ID!
   module: String
   name: String
@@ -260,8 +353,8 @@ type User {
 }
 
 type UserDto {
+  _id: ID!
   email: String!
   name: String!
   role: String!
-  sub: ID!
 }

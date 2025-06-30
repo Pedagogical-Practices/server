@@ -12,6 +12,7 @@ import { CourseModule } from './course/course.module';
 import { ProtocolModule } from './protocol/protocol.module';
 import { SubmissionModule } from './submission/submission.module';
 import { AttendanceModule } from './attendance/attendance.module';
+import { PracticeModule } from './practice/practice.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { AttendanceModule } from './attendance/attendance.module';
     ProtocolModule,
     SubmissionModule,
     AttendanceModule,
+    PracticeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

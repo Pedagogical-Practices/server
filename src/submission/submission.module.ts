@@ -19,5 +19,6 @@ import { GraphQLJSON } from 'graphql-type-json';
     SubmissionService,
     { provide: 'GraphQLJSON', useValue: GraphQLJSON },
   ],
+  exports: [SubmissionService],
 })
 export class SubmissionModule {}
