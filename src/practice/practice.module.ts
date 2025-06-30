@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Practice, PracticeSchema } from './schemas/practice.schema';
 import { PracticeService } from './practice.service';
@@ -14,7 +14,7 @@ import { SubmissionModule } from '../submission/submission.module'; // Para inye
     AuthModule, // Importar AuthModule para usar UserService
     ProtocolModule, // Importar ProtocolModule para usar ProtocolService
     FormModule, // Importar FormModule para usar FormService
-    SubmissionModule, // Importar SubmissionModule para usar SubmissionService
+    forwardRef(() => SubmissionModule), // Usar forwardRef para romper la dependencia circular
   ],
   providers: [PracticeService, PracticeResolver],
   exports: [PracticeService], // Exportar el servicio si otros módulos lo necesitan

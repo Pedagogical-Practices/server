@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Context } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Context, Int } from '@nestjs/graphql';
 import { ProtocolService } from './protocol.service';
 import { Protocol } from './schemas/protocol.schema';
 import { AttendanceRecord } from '../attendance/schemas/attendance.schema';
@@ -10,7 +10,7 @@ import {
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';
+import { Roles, UserRoles } from '../auth/roles.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { UserDto } from '../auth/dto/user.dto';
 
@@ -20,7 +20,8 @@ export class ProtocolResolver {
   constructor(private protocolService: ProtocolService) {}
 
   @Mutation(() => Protocol)
-  @Roles('admin') // Asumiendo que solo los admins pueden crear protocolos
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
   async createProtocol(
     @Args('createProtocolInput') createProtocolInput: CreateProtocolInput,
     @CurrentUser() user: UserDto,
@@ -29,7 +30,8 @@ export class ProtocolResolver {
   }
 
   @Mutation(() => Protocol)
-  @Roles('admin') // Asumiendo que solo los admins pueden actualizar protocolos
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
   async updateProtocol(
     @Args('updateProtocolInput') updateProtocolInput: UpdateProtocolInput,
     @CurrentUser() user: UserDto,
@@ -38,12 +40,14 @@ export class ProtocolResolver {
   }
 
   @Mutation(() => Boolean)
-  @Roles('admin') // Asumiendo que solo los admins pueden eliminar protocolos
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
   async deleteProtocol(@Args('id') id: string): Promise<boolean> {
     return this.protocolService.delete(id);
   }
 
   @Mutation(() => AttendanceRecord)
+  // No se especificaron roles para esta mutación, se mantiene el comportamiento actual
   async createAttendanceRecord(
     @Args('createAttendanceRecordInput')
     createAttendanceRecordInput: CreateAttendanceRecordInput,
@@ -56,13 +60,24 @@ export class ProtocolResolver {
   }
 
   @Query(() => [Protocol])
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
   async protocols(): Promise<Protocol[]> {
     // Ya no filtra por courseId
     return this.protocolService.findAll();
   }
 
   @Query(() => Protocol)
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
   async protocol(@Args('id') id: string): Promise<Protocol | null> {
     return this.protocolService.findOne(id);
+  }
+
+  @Query(() => Int)
+  @UseGuards(RolesGuard)
+  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
+  async protocolsCount(): Promise<number> {
+    return this.protocolService.countProtocols();
   }
 }

@@ -60,4 +60,8 @@ export class FormService {
     }
     return form;
   }
+
+  async countForms(): Promise<number> {
+    return this.formModel.countDocuments().exec();
+  }
 }

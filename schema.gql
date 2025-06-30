@@ -224,6 +224,7 @@ type Mutation {
   deleteCourse(id: String!): Boolean!
   deleteProtocol(id: String!): Boolean!
   deleteSubmission(id: String!): Boolean!
+  deleteUser(id: String!): Boolean!
   generateAttendancePDF(input: GenerateAttendancePDFInput!): String!
   login(email: String!, password: String!): AuthPayload!
   registerFormSubmission(formId: String!, practiceId: String!, submissionId: String!): PracticeDto!
@@ -236,6 +237,7 @@ type Mutation {
   updateProtocol(updateProtocolInput: UpdateProtocolInput!): Protocol!
   updateSubmission(updateSubmissionInput: UpdateSubmissionInput!): Submission!
   updateUser(updateUserInput: UpdateUserInput!): UserDto!
+  updateUserByAdmin(id: String!, updateUserInput: UpdateUserInput!): UserDto!
 }
 
 type Option {
@@ -289,13 +291,19 @@ type Query {
   courses: [Course!]!
   form(id: String!): FormDto!
   forms: [FormDto!]!
+  formsCount: Int!
   me: UserDto
   practice(id: String!): PracticeDto!
   practices: [PracticeDto!]!
+  practicesCount: Int!
   protocol(id: String!): Protocol!
   protocols: [Protocol!]!
+  protocolsCount: Int!
   submission(id: String!): Submission!
   submissions(protocolId: String!): [Submission!]!
+  user(id: String!): UserDto
+  users: [UserDto!]!
+  usersCount: Int!
 }
 
 type Submission {

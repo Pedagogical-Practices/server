@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Practice, FilledForm } from './schemas/practice.schema';
@@ -7,6 +7,8 @@ import { AuthService } from '../auth/auth.service'; // Para buscar estudiantes y
 import { ProtocolService } from '../protocol/protocol.service'; // Para buscar protocolos
 import { FormService } from '../form/form.service'; // Para buscar formularios
 import { SubmissionService } from '../submission/submission.service'; // Para manejar submissions
+import { UserDto } from '../auth/dto/user.dto';
+import { UserRoles } from '../auth/roles.decorator';
 
 @Injectable()
 export class PracticeService {
@@ -15,7 +17,7 @@ export class PracticeService {
     private authService: AuthService,
     private protocolService: ProtocolService,
     private formService: FormService,
-    private submissionService: SubmissionService,
+    @Inject(forwardRef(() => SubmissionService)) private submissionService: SubmissionService,
   ) {}
 
   async create(
@@ -64,9 +66,22 @@ export class PracticeService {
     return populatedPractice;
   }
 
-  async findAll(): Promise<Practice[]> {
+  async findAll(user: UserDto): Promise<Practice[]> {
+    let query: any = {};
+
+    if (user.role === UserRoles.STUDENT) {
+      query = { student: user._id };
+    } else if (user.role === UserRoles.TEACHER_DIRECTIVE) {
+      query = { advisor: user._id };
+    } else if (user.role === UserRoles.ADMIN || user.role === UserRoles.COORDINATOR) {
+      // Admins and Coordinators can see all practices
+      query = {};
+    } else {
+      throw new UnauthorizedException('No autorizado para ver prácticas');
+    }
+
     return this.practiceModel
-      .find()
+      .find(query)
       .populate('student')
       .populate('advisor')
       .populate({ path: 'protocol', populate: { path: 'forms' } }) // Popula forms dentro de protocol
@@ -75,7 +90,7 @@ export class PracticeService {
       .exec();
   }
 
-  async findOne(id: string): Promise<Practice> {
+  async findOne(id: string, user: UserDto): Promise<Practice> {
     const practice = await this.practiceModel
       .findById(id)
       .populate('student')
@@ -84,9 +99,28 @@ export class PracticeService {
       .populate('filledForms.form') // Popula el objeto Form dentro de filledForms
       .populate('createdBy') // Asegurarse de popular createdBy también
       .exec();
+
     if (!practice) {
       throw new NotFoundException(`Práctica #${id} no encontrada`);
     }
+
+    // Verificar permisos basados en el rol
+    if (user.role === UserRoles.STUDENT && practice.student.toString() !== user._id) {
+      throw new UnauthorizedException('No autorizado para ver esta práctica');
+    } else if (user.role === UserRoles.TEACHER_DIRECTIVE && practice.advisor.toString() !== user._id) {
+      throw new UnauthorizedException('No autorizado para ver esta práctica');
+    } else if (!(user.role === UserRoles.ADMIN || user.role === UserRoles.COORDINATOR)) {
+      // Si no es admin, coordinador, estudiante de la práctica o asesor de la práctica
+      // y no es un rol que deba ver todas las prácticas, entonces no está autorizado.
+      // Los roles ADMIN y COORDINATOR ya tienen acceso total.
+      // Los roles STUDENT y TEACHER_DIRECTIVE ya fueron validados arriba.
+      // Cualquier otro rol no debería tener acceso a menos que se especifique.
+      // Por ahora, si no es uno de los roles permitidos, se deniega el acceso.
+      if (practice.student.toString() !== user._id && practice.advisor.toString() !== user._id) {
+        throw new UnauthorizedException('No autorizado para ver esta práctica');
+      }
+    }
+
     return practice;
   }
 
@@ -184,6 +218,9 @@ export class PracticeService {
         { path: 'createdBy' } // Asegurarse de popular createdBy también
       ]);
     return populatedPractice;
-    return populatedPractice;
+  }
+
+  async countPractices(): Promise<number> {
+    return this.practiceModel.countDocuments().exec();
   }
 }

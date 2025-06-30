@@ -1,11 +1,12 @@
 // submission.module.ts
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { SubmissionResolver } from './submission.resolver';
 import { SubmissionService } from './submission.service';
 import { Submission, SubmissionSchema } from './schemas/submission.schema';
 import { AuthModule } from 'src/auth/auth.module';
 import { GraphQLJSON } from 'graphql-type-json';
+import { PracticeModule } from 'src/practice/practice.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { GraphQLJSON } from 'graphql-type-json';
       { name: Submission.name, schema: SubmissionSchema },
     ]),
     AuthModule,
+    forwardRef(() => PracticeModule),
   ],
   providers: [
     SubmissionResolver,

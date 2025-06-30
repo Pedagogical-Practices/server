@@ -1,19 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AttendanceRecord } from './schemas/attendance.schema';
 import * as PDFKit from 'pdfkit';
 import { CreateAttendanceRecordInput } from './dto/create-attendance-record.input';
+import { UserDto } from '../auth/dto/user.dto';
+import { UserRoles } from '../auth/roles.decorator';
+import { PracticeService } from '../practice/practice.service';
 
 @Injectable()
 export class AttendanceService {
   constructor(
     @InjectModel(AttendanceRecord.name)
     private attendanceModel: Model<AttendanceRecord>,
+    @Inject(forwardRef(() => PracticeService)) private practiceService: PracticeService,
   ) {}
 
-  async findByProtocolId(protocolId: string): Promise<AttendanceRecord[]> {
-    return this.attendanceModel.find({ protocolId }).exec();
+  async findByProtocolId(protocolId: string, user: UserDto): Promise<AttendanceRecord[]> {
+    let query: any = { protocolId };
+
+    if (user.role === UserRoles.ADMIN || user.role === UserRoles.COORDINATOR) {
+      // Admins and Coordinators can see all attendance records for the protocol
+      // No additional filtering needed for query
+    } else if (user.role === UserRoles.TEACHER_DIRECTIVE) {
+      // A teacher/directive can only see attendance records for practices they advise
+      const practices = await this.practiceService.findAll(user); // This method already filters by advisor
+      const studentIds = practices.map(p => p.student.toString());
+      // Filter attendance records by students associated with practices advised by this teacher
+      query.submittedBy = { $in: studentIds };
+    } else {
+      throw new UnauthorizedException('No autorizado para ver registros de asistencia');
+    }
+
+    return this.attendanceModel.find(query).exec();
   }
 
   async createAttendanceRecord(

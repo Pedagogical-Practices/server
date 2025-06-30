@@ -1,4 +1,3 @@
-// server/src/auth/auth.service.ts
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -19,7 +18,7 @@ export class AuthService {
 
   private mapMongooseUserToDto(user: User): UserDto {
     return {
-      _id: user._id.toString(), // Cambiado de 'sub' a '_id'
+      _id: user._id.toString(),
       name: user.name,
       email: user.email,
       role: user.role,
@@ -84,10 +83,37 @@ export class AuthService {
     return this.mapMongooseUserToDto(user);
   }
 
+  async updateUserById(
+    id: string,
+    updateUserInput: UpdateUserInput,
+  ): Promise<UserDto> {
+    const user = await this.userModel
+      .findByIdAndUpdate(id, updateUserInput, { new: true })
+      .exec();
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    return this.mapMongooseUserToDto(user);
+  }
+
   async findOne(id: string): Promise<UserDto | null> {
     console.log('auth.service.ts: findOne, id:', id);
     const user = await this.userModel.findById(id).exec();
     console.log('auth.service.ts: findOne, user found:', user);
     return user ? this.mapMongooseUserToDto(user) : null;
+  }
+
+  async findAll(): Promise<UserDto[]> {
+    const users = await this.userModel.find().exec();
+    return users.map(user => this.mapMongooseUserToDto(user));
+  }
+
+  async deleteUser(id: string): Promise<boolean> {
+    const result = await this.userModel.deleteOne({ _id: id }).exec();
+    return result.deletedCount > 0;
+  }
+
+  async countUsers(): Promise<number> {
+    return this.userModel.countDocuments().exec();
   }
 }
