@@ -69,6 +69,10 @@ export class Practice extends Document {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
   createdBy: Types.ObjectId; // Usuario que creó la asignación
 
+  @Field({ nullable: true })
+  @Prop({ required: false }) // Hacerlo opcional por ahora
+  dueDate?: string; // Fecha de entrega o finalización de la práctica
+
   @Field()
   createdAt: string;
 }

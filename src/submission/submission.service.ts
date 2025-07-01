@@ -100,4 +100,20 @@ export class SubmissionService {
 
     return submission;
   }
+
+  async findAll(user: UserDto): Promise<Submission[]> {
+    let query: any = {};
+
+    if (user.role === UserRoles.STUDENT) {
+      query.submittedBy = user._id;
+    } else if (user.role === UserRoles.TEACHER_DIRECTIVE) {
+      const practices = await this.practiceService.findAll(user);
+      const studentIds = practices.map(p => p.student.toString());
+      query.submittedBy = { $in: studentIds };
+    } else if (!(user.role === UserRoles.ADMIN || user.role === UserRoles.COORDINATOR)) {
+      throw new UnauthorizedException('No autorizado para ver submissions');
+    }
+
+    return this.submissionModel.find(query).exec();
+  }
 }

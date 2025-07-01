@@ -13,6 +13,7 @@ import { ProtocolModule } from './protocol/protocol.module';
 import { SubmissionModule } from './submission/submission.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { PracticeModule } from './practice/practice.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { PracticeModule } from './practice/practice.module';
     SubmissionModule,
     AttendanceModule,
     PracticeModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

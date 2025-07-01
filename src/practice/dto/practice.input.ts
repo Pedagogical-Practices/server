@@ -17,6 +17,9 @@ export class CreatePracticeInput {
 
   @Field()
   courseName: string;
+
+  @Field({ nullable: true })
+  dueDate?: string;
 }
 
 @InputType()
@@ -38,6 +41,9 @@ export class UpdatePracticeInput {
 
   @Field({ nullable: true })
   courseName?: string;
+
+  @Field({ nullable: true })
+  dueDate?: string;
 
   @Field(() => PracticeStatus, { nullable: true }) // Usar el enum de estados
   status?: PracticeStatus;

@@ -191,4 +191,26 @@ export class AttendanceService {
       doc.on('end', () => resolve(Buffer.concat(buffers)));
     });
   }
+
+  async findAll(user: UserDto): Promise<AttendanceRecord[]> {
+    let query: any = {};
+
+    if (user.role === UserRoles.ADMIN || user.role === UserRoles.COORDINATOR) {
+      // Admins and Coordinators can see all attendance records
+      query = {};
+    } else if (user.role === UserRoles.TEACHER_DIRECTIVE) {
+      // A teacher/directive can only see attendance records for practices they advise
+      const practices = await this.practiceService.findAll(user); // This method already filters by advisor
+      const studentIds = practices.map(p => p.student.toString());
+      // Filter attendance records by students associated with practices advised by this teacher
+      query.submittedBy = { $in: studentIds };
+    } else if (user.role === UserRoles.STUDENT) {
+      // A student can only see their own attendance records
+      query.submittedBy = user._id;
+    } else {
+      throw new UnauthorizedException('No autorizado para ver registros de asistencia');
+    }
+
+    return this.attendanceModel.find(query).exec();
+  }
 }
