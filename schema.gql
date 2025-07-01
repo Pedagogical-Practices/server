@@ -58,6 +58,12 @@ input CreateFormInput {
   name: String!
 }
 
+input CreateInstitutionInput {
+  address: String
+  name: String!
+  phone: String
+}
+
 input CreatePracticeInput {
   advisorId: ID!
   courseName: String!
@@ -219,6 +225,13 @@ type ImportantDate {
   title: String!
 }
 
+type Institution {
+  _id: ID!
+  address: String
+  name: String!
+  phone: String
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -228,10 +241,12 @@ type Mutation {
   createAttendanceRecord(createAttendanceRecordInput: CreateAttendanceRecordInput!): AttendanceRecord!
   createCourse(createCourseInput: CreateCourseInput!): Course!
   createForm(createFormInput: CreateFormInput!): FormDto!
+  createInstitution(createInstitutionInput: CreateInstitutionInput!): Institution!
   createPractice(createPracticeInput: CreatePracticeInput!): PracticeDto!
   createProtocol(createProtocolInput: CreateProtocolInput!): Protocol!
   createUser(createUserInput: CreateUserInput!): AuthPayload!
   deleteCourse(id: String!): Boolean!
+  deleteInstitution(id: String!): Boolean!
   deleteProtocol(id: String!): Boolean!
   deleteSubmission(id: String!): Boolean!
   deleteUser(id: String!): Boolean!
@@ -243,6 +258,7 @@ type Mutation {
   submitProtocol(createSubmissionInput: CreateSubmissionInput!): Submission!
   updateCourse(updateCourseInput: UpdateCourseInput!): Course!
   updateForm(updateFormInput: UpdateFormInput!): FormDto!
+  updateInstitution(updateInstitutionInput: UpdateInstitutionInput!): Institution!
   updatePractice(updatePracticeInput: UpdatePracticeInput!): PracticeDto!
   updateProtocol(updateProtocolInput: UpdateProtocolInput!): Protocol!
   updateSubmission(updateSubmissionInput: UpdateSubmissionInput!): Submission!
@@ -303,6 +319,8 @@ type Query {
   forms: [FormDto!]!
   formsCount: Int!
   importantDates: [ImportantDate!]!
+  institution(id: String!): Institution!
+  institutions(search: String): [Institution!]!
   me: UserDto
   practice(id: String!): PracticeDto!
   practices: [PracticeDto!]!
@@ -334,6 +352,13 @@ input UpdateFormInput {
   fields: [FormFieldInput!]
   id: String!
   name: String
+}
+
+input UpdateInstitutionInput {
+  address: String
+  id: ID!
+  name: String
+  phone: String
 }
 
 input UpdatePracticeInput {

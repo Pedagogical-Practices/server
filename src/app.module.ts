@@ -14,6 +14,7 @@ import { SubmissionModule } from './submission/submission.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { PracticeModule } from './practice/practice.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { InstitutionModule } from './institution/institution.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     AttendanceModule,
     PracticeModule,
     DashboardModule,
+    InstitutionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
