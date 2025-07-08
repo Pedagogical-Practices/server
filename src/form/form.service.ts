@@ -117,14 +117,19 @@ export class FormService {
     }));
 
     if (form.createdBy) {
-      // Asumiendo que createdBy es un objeto User populado
-      const createdBy = form.createdBy as any; // Usar 'any' temporalmente para evitar errores de tipo si no está populado
-      formDto.createdBy = {
-        _id: createdBy._id.toHexString(),
-        name: createdBy.name,
-        email: createdBy.email,
-        role: createdBy.role,
-      };
+      if (typeof form.createdBy === 'string') {
+        // If createdBy is just an ID string, assign it directly
+        formDto.createdBy = { _id: form.createdBy, name: '', email: '', role: '' }; // Provide default empty values
+      } else {
+        // If createdBy is a populated User object
+        const createdBy = form.createdBy as any;
+        formDto.createdBy = {
+          _id: createdBy._id.toHexString(),
+          name: createdBy.name,
+          email: createdBy.email,
+          role: createdBy.role,
+        };
+      }
     }
 
     console.log('FormService: mapToDto - final FormDto', formDto);
