@@ -112,6 +112,10 @@ export class FormField {
   @Field({ nullable: true }) // Añadido
   @Prop() // Añadido
   multiple: boolean;
+
+  @Field({ nullable: true }) // Añadido
+  @Prop() // Añadido
+  dataSource: string;
 }
 
 export const FormFieldSchema = SchemaFactory.createForClass(FormField);

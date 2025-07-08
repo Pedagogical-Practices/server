@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -11,6 +11,8 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     private jwtService: JwtService,
@@ -27,8 +29,9 @@ export class AuthService {
 
   async login(email: string, password: string): Promise<AuthPayload> {
     const user = await this.userModel.findOne({ email }).exec();
-    console.log('auth.service.ts: login, user found:', user);
+    this.logger.log(`Login attempt for email: ${email}`);
     if (!user || !(await bcrypt.compare(password, user.password))) {
+      this.logger.warn(`Failed login attempt for email: ${email}`);
       throw new UnauthorizedException('Invalid credentials');
     }
     const payload = {
@@ -36,9 +39,9 @@ export class AuthService {
       email: user.email,
       role: user.role,
     };
-    console.log('auth.service.ts: login, payload:', payload);
+    this.logger.log(`Login successful for user: ${user.email}`);
     return {
-      token: this.jwtService.sign(payload, { expiresIn: '7d' }),
+      token: this.jwtService.sign(payload),
       user: this.mapMongooseUserToDto(user),
     };
   }
@@ -46,7 +49,7 @@ export class AuthService {
   async register(createUserInput: CreateUserInput): Promise<AuthPayload> {
     const { email, password, name, role } = createUserInput;
     const existingUser = await this.userModel.findOne({ email }).exec();
-    console.log('auth.service.ts: register, existingUser:', existingUser);
+    this.logger.log(`Registration attempt for email: ${email}`);
     if (existingUser) {
       throw new UnauthorizedException('User already exists');
     }
@@ -57,14 +60,14 @@ export class AuthService {
       name,
       role,
     });
-    console.log('auth.service.ts: register, created user:', user);
+    this.logger.log(`User registered: ${user.email}`);
     const payload = {
       sub: user._id.toString(),
       email: user.email,
       role: user.role,
     };
     return {
-      token: this.jwtService.sign(payload, { expiresIn: '7d' }),
+      token: this.jwtService.sign(payload),
       user: this.mapMongooseUserToDto(user),
     };
   }
@@ -76,7 +79,7 @@ export class AuthService {
     const user = await this.userModel
       .findByIdAndUpdate(id, updateUserInput, { new: true })
       .exec();
-    console.log('auth.service.ts: updateProfile, updated user:', user);
+    this.logger.log(`Updating profile for user ID: ${id}`);
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
@@ -97,9 +100,8 @@ export class AuthService {
   }
 
   async findOne(id: string): Promise<UserDto | null> {
-    console.log('auth.service.ts: findOne, id:', id);
+    this.logger.log(`Finding user by ID: ${id}`);
     const user = await this.userModel.findById(id).exec();
-    console.log('auth.service.ts: findOne, user found:', user);
     return user ? this.mapMongooseUserToDto(user) : null;
   }
 
