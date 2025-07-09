@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose'; // Agregar Types
+import { Model, Types } from 'mongoose';
 import { Protocol } from './schemas/protocol.schema';
 import { AttendanceRecord } from '../attendance/schemas/attendance.schema';
 import {
@@ -19,11 +19,14 @@ export class ProtocolService {
     createProtocolInput: CreateProtocolInput,
     userId: string,
   ): Promise<Protocol> {
-    const protocol = new this.protocolModel({
-      ...createProtocolInput,
+    const createdProtocol = new this.protocolModel({
+      name: createProtocolInput.name,
+      module: createProtocolInput.module,
+      forms: createProtocolInput.formIds,
       createdBy: userId,
     });
-    return protocol.save();
+    const savedProtocol = await createdProtocol.save();
+    return savedProtocol.populate('forms');
   }
 
   async update(
@@ -32,12 +35,22 @@ export class ProtocolService {
   ): Promise<Protocol | null> {
     const { id, ...updateData } = updateProtocolInput;
     const protocol = await this.protocolModel.findById(id).exec();
+
     if (!protocol || protocol.createdBy !== userId) {
-      throw new Error('No autorizado o protocolo no encontrado');
+      throw new NotFoundException('No autorizado o protocolo no encontrado');
     }
-    return this.protocolModel
+
+    if (updateData.formIds !== undefined) {
+      (updateData as any).forms = updateData.formIds;
+      delete updateData.formIds;
+    }
+
+    const updatedProtocol = await this.protocolModel
       .findByIdAndUpdate(id, updateData, { new: true })
+      .populate('forms')
       .exec();
+
+    return updatedProtocol;
   }
 
   async delete(id: string): Promise<boolean> {
@@ -53,7 +66,7 @@ export class ProtocolService {
       .findById(createAttendanceRecordInput.protocolId)
       .exec();
     if (!protocol || protocol.createdBy !== userId) {
-      throw new Error('No autorizado o protocolo no encontrado');
+      throw new NotFoundException('No autorizado o protocolo no encontrado');
     }
     const newRecord: AttendanceRecord = {
       ...createAttendanceRecordInput,
@@ -66,11 +79,15 @@ export class ProtocolService {
     return protocol.attendanceRecords[protocol.attendanceRecords.length - 1];
   }
 
-  async findByCourse(courseId: string): Promise<Protocol[]> {
-    return this.protocolModel.find({ courseId }).exec();
+  async findAll(): Promise<Protocol[]> {
+    return this.protocolModel.find().populate('forms').exec();
   }
 
   async findOne(id: string): Promise<Protocol | null> {
-    return this.protocolModel.findById(id).exec();
+    return this.protocolModel.findById(id).populate('forms').exec();
+  }
+
+  async countProtocols(): Promise<number> {
+    return this.protocolModel.countDocuments().exec();
   }
 }

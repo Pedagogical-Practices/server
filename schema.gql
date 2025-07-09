@@ -58,9 +58,23 @@ input CreateFormInput {
   name: String!
 }
 
+input CreateInstitutionInput {
+  address: String
+  name: String!
+  phone: String
+}
+
+input CreatePracticeInput {
+  advisorId: ID!
+  courseName: String!
+  dueDate: String
+  institutionName: String!
+  protocolId: ID!
+  studentId: ID!
+}
+
 input CreateProtocolInput {
-  courseId: ID!
-  formId: ID!
+  formIds: [ID!]!
   module: String!
   name: String!
 }
@@ -83,6 +97,26 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type FilledForm {
+  form: ID!
+  submission: ID
+}
+
+type FilledFormDto {
+  form: Form!
+  formId: ID!
+  submission: Submission
+  submissionId: ID
+}
+
+type Form {
+  _id: ID!
+  createdAt: String!
+  createdBy: ID!
+  fields: [FormField!]!
+  name: String!
+}
+
 type FormDto {
   _id: ID!
   createdAt: DateTime!
@@ -92,10 +126,39 @@ type FormDto {
   updatedAt: DateTime!
 }
 
+type FormField {
+  chapter: String
+  color: String
+  consistencyCondition: String
+  dataSource: String
+  description: String
+  disabled: Boolean
+  errorType: String
+  height: String
+  hint: String
+  inconsistencyMessage: String
+  label: String
+  multiple: Boolean
+  name: String
+  options: [Option!]
+  placeholder: String
+  question: String
+  questionNumber: String
+  readonly: Boolean
+  required: Boolean
+  requirementLevel: String
+  rules: [String!]
+  specificType: String
+  type: String!
+  value: String
+  variableName: String
+}
+
 type FormFieldDto {
   chapter: String
   color: String
   consistencyCondition: String
+  dataSource: String
   description: String
   disabled: Boolean
   errorType: String
@@ -123,6 +186,7 @@ input FormFieldInput {
   chapter: String
   color: String
   consistencyCondition: String
+  dataSource: String
   description: String
   disabled: Boolean
   errorType: String
@@ -155,6 +219,22 @@ input GenerateAttendancePDFInput {
   tutorName: String!
 }
 
+type ImportantDate {
+  date: String!
+  entityType: String!
+  id: ID!
+  relatedId: ID!
+  semaphoreStatus: String!
+  title: String!
+}
+
+type Institution {
+  _id: ID!
+  address: String
+  name: String!
+  phone: String
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -164,20 +244,34 @@ type Mutation {
   createAttendanceRecord(createAttendanceRecordInput: CreateAttendanceRecordInput!): AttendanceRecord!
   createCourse(createCourseInput: CreateCourseInput!): Course!
   createForm(createFormInput: CreateFormInput!): FormDto!
+  createInstitution(createInstitutionInput: CreateInstitutionInput!): Institution!
+  createPractice(createPracticeInput: CreatePracticeInput!): PracticeDto!
   createProtocol(createProtocolInput: CreateProtocolInput!): Protocol!
   createUser(createUserInput: CreateUserInput!): AuthPayload!
   deleteCourse(id: String!): Boolean!
+  deleteInstitution(id: String!): Boolean!
   deleteProtocol(id: String!): Boolean!
   deleteSubmission(id: String!): Boolean!
+  deleteUser(id: String!): Boolean!
   generateAttendancePDF(input: GenerateAttendancePDFInput!): String!
   login(email: String!, password: String!): AuthPayload!
+  registerFormSubmission(formId: String!, practiceId: String!, submissionId: String!): PracticeDto!
   removeForm(id: String!): FormDto!
+  removePractice(id: String!): Boolean!
   submitProtocol(createSubmissionInput: CreateSubmissionInput!): Submission!
   updateCourse(updateCourseInput: UpdateCourseInput!): Course!
   updateForm(updateFormInput: UpdateFormInput!): FormDto!
+  updateInstitution(updateInstitutionInput: UpdateInstitutionInput!): Institution!
+  updatePractice(updatePracticeInput: UpdatePracticeInput!): PracticeDto!
   updateProtocol(updateProtocolInput: UpdateProtocolInput!): Protocol!
   updateSubmission(updateSubmissionInput: UpdateSubmissionInput!): Submission!
   updateUser(updateUserInput: UpdateUserInput!): UserDto!
+  updateUserByAdmin(id: String!, updateUserInput: UpdateUserInput!): UserDto!
+}
+
+type Option {
+  label: String!
+  value: String!
 }
 
 type OptionDto {
@@ -190,13 +284,32 @@ input OptionInput {
   value: String!
 }
 
+type PracticeDto {
+  _id: ID!
+  advisor: UserDto!
+  courseName: String!
+  createdAt: String!
+  createdBy: UserDto!
+  filledForms: [FilledFormDto!]!
+  institutionName: String!
+  protocol: Protocol!
+  status: String!
+  student: UserDto!
+}
+
+enum PracticeStatus {
+  ASSIGNED
+  COMPLETED
+  IN_PROGRESS
+  REVIEWED
+}
+
 type Protocol {
   _id: ID!
   attendanceRecords: [AttendanceRecord!]!
-  courseId: ID!
   createdAt: String!
   createdBy: String!
-  formId: ID!
+  forms: [Form!]!
   module: String!
   name: String!
 }
@@ -207,11 +320,22 @@ type Query {
   courses: [Course!]!
   form(id: String!): FormDto!
   forms: [FormDto!]!
+  formsCount: Int!
+  importantDates: [ImportantDate!]!
+  institution(id: String!): Institution!
+  institutions(search: String): [Institution!]!
   me: UserDto
+  practice(id: String!): PracticeDto!
+  practices: [PracticeDto!]!
+  practicesCount: Int!
   protocol(id: String!): Protocol!
-  protocols(courseId: String!): [Protocol!]!
+  protocols: [Protocol!]!
+  protocolsCount: Int!
   submission(id: String!): Submission!
   submissions(protocolId: String!): [Submission!]!
+  user(id: String!): UserDto
+  users: [UserDto!]!
+  usersCount: Int!
 }
 
 type Submission {
@@ -233,9 +357,26 @@ input UpdateFormInput {
   name: String
 }
 
+input UpdateInstitutionInput {
+  address: String
+  id: ID!
+  name: String
+  phone: String
+}
+
+input UpdatePracticeInput {
+  advisorId: ID
+  courseName: String
+  dueDate: String
+  id: ID!
+  institutionName: String
+  protocolId: ID
+  status: PracticeStatus
+  studentId: ID
+}
+
 input UpdateProtocolInput {
-  courseId: ID
-  formId: ID
+  formIds: [ID!]
   id: ID!
   module: String
   name: String
@@ -260,8 +401,8 @@ type User {
 }
 
 type UserDto {
+  _id: ID!
   email: String!
   name: String!
   role: String!
-  sub: ID!
 }

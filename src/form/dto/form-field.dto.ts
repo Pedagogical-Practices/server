@@ -74,4 +74,7 @@ export class FormFieldDto {
 
   @Field({ nullable: true }) // Añadido
   multiple: boolean;
+
+  @Field({ nullable: true })
+  dataSource?: string;
 }
