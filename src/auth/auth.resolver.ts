@@ -26,7 +26,7 @@ export class AuthResolver {
 
   @Mutation(() => AuthPayload)
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
+  @Roles(UserRoles.ADMIN)
   async createUser(
     @Args('createUserInput') createUserInput: CreateUserInput,
   ): Promise<AuthPayload> {
@@ -47,7 +47,7 @@ export class AuthResolver {
 
   @Mutation(() => UserDto)
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
+  @Roles(UserRoles.ADMIN)
   async updateUserByAdmin(
     @Args('id') id: string,
     @Args('updateUserInput') updateUserInput: UpdateUserInput,
