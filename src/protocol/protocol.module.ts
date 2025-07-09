@@ -13,5 +13,6 @@ import { AuthModule } from 'src/auth/auth.module';
     AuthModule,
   ],
   providers: [ProtocolResolver, ProtocolService],
+  exports: [ProtocolService], // <--- Añadido
 })
 export class ProtocolModule {}

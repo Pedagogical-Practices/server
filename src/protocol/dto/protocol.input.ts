@@ -3,17 +3,14 @@ import { InputType, Field, ID, Int } from '@nestjs/graphql';
 
 @InputType()
 export class CreateProtocolInput {
-  @Field(() => ID)
-  courseId: string;
-
   @Field()
   name: string;
 
   @Field()
   module: string;
 
-  @Field(() => ID)
-  formId: string;
+  @Field(() => [ID]) // Ahora es un array de IDs
+  formIds: string[]; // Cambiado de formId a formIds
 }
 
 @InputType()
@@ -21,8 +18,8 @@ export class UpdateProtocolInput {
   @Field(() => ID)
   id: string;
 
-  @Field(() => ID, { nullable: true })
-  courseId?: string;
+  // @Field(() => ID, { nullable: true })
+  // courseId?: string;
 
   @Field({ nullable: true })
   name?: string;
@@ -30,10 +27,11 @@ export class UpdateProtocolInput {
   @Field({ nullable: true })
   module?: string;
 
-  @Field(() => ID, { nullable: true })
-  formId?: string;
+  @Field(() => [ID], { nullable: true }) // Ahora es un array de IDs, opcional para actualización
+  formIds?: string[]; // Cambiado de formId a formIds
 }
 
+// CreateAttendanceRecordInput se mantiene sin cambios
 @InputType()
 export class CreateAttendanceRecordInput {
   @Field(() => ID)
