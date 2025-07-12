@@ -1,6 +1,8 @@
-import { Resolver, Query, Mutation, Args, Context, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Context, Int, ResolveField, Parent } from '@nestjs/graphql';
 import { ProtocolService } from './protocol.service';
 import { Protocol } from './schemas/protocol.schema';
+import { Form } from '../form/schemas/form.schema'; // Importar Form
+import { FormService } from '../form/form.service'; // Importar FormService
 import { AttendanceRecord } from '../attendance/schemas/attendance.schema';
 import {
   CreateProtocolInput,
@@ -17,11 +19,14 @@ import { UserDto } from '../auth/dto/user.dto';
 @Resolver(() => Protocol)
 @UseGuards(AuthGuard)
 export class ProtocolResolver {
-  constructor(private protocolService: ProtocolService) {}
+  constructor(
+    private protocolService: ProtocolService,
+    private formService: FormService, // Inyectar FormService
+  ) {}
 
   @Mutation(() => Protocol)
   @UseGuards(RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
+  @Roles(UserRoles.ADMIN)
   async createProtocol(
     @Args('createProtocolInput') createProtocolInput: CreateProtocolInput,
     @CurrentUser() user: UserDto,
@@ -31,7 +36,7 @@ export class ProtocolResolver {
 
   @Mutation(() => Protocol)
   @UseGuards(RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
+  @Roles(UserRoles.ADMIN)
   async updateProtocol(
     @Args('updateProtocolInput') updateProtocolInput: UpdateProtocolInput,
     @CurrentUser() user: UserDto,
@@ -41,7 +46,7 @@ export class ProtocolResolver {
 
   @Mutation(() => Boolean)
   @UseGuards(RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
+  @Roles(UserRoles.ADMIN)
   async deleteProtocol(@Args('id') id: string): Promise<boolean> {
     return this.protocolService.delete(id);
   }
@@ -60,24 +65,28 @@ export class ProtocolResolver {
   }
 
   @Query(() => [Protocol])
-  @UseGuards(RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
   async protocols(): Promise<Protocol[]> {
     // Ya no filtra por courseId
     return this.protocolService.findAll();
   }
 
   @Query(() => Protocol)
-  @UseGuards(RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
   async protocol(@Args('id') id: string): Promise<Protocol | null> {
     return this.protocolService.findOne(id);
   }
 
   @Query(() => Int)
-  @UseGuards(RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
   async protocolsCount(): Promise<number> {
     return this.protocolService.countProtocols();
+  }
+
+  @ResolveField('forms', () => [Form])
+  async getForms(@Parent() protocol: Protocol): Promise<Form[]> {
+    if (!protocol.forms || protocol.forms.length === 0) {
+      return [];
+    }
+    // Asumimos que protocol.forms es una lista de IDs
+    const formIds = protocol.forms.map(form => (form as any)._id || form);
+    return this.formService.findManyByIds(formIds);
   }
 }

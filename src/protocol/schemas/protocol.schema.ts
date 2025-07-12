@@ -14,9 +14,13 @@ export class Protocol extends Document {
   @Prop({ required: true })
   name: string;
 
-  @Field()
-  @Prop({ required: true })
-  module: string;
+  @Field({ nullable: true })
+  @Prop()
+  description?: string;
+
+  @Field({ nullable: true })
+  @Prop()
+  module?: string;
 
   @Field(() => [Form]) // Ahora es un array de Form
   @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Form' }], default: [] }) // Referencia a múltiples Forms

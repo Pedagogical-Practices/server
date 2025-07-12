@@ -74,8 +74,9 @@ input CreatePracticeInput {
 }
 
 input CreateProtocolInput {
-  formIds: [ID!]!
-  module: String!
+  description: String
+  formIds: [ID!] = []
+  module: String
   name: String!
 }
 
@@ -309,8 +310,9 @@ type Protocol {
   attendanceRecords: [AttendanceRecord!]!
   createdAt: String!
   createdBy: String!
+  description: String
   forms: [Form!]!
-  module: String!
+  module: String
   name: String!
 }
 
@@ -376,6 +378,7 @@ input UpdatePracticeInput {
 }
 
 input UpdateProtocolInput {
+  description: String
   formIds: [ID!]
   id: ID!
   module: String

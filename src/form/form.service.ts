@@ -81,6 +81,10 @@ export class FormService {
     return this.formModel.countDocuments().exec();
   }
 
+  async findManyByIds(ids: string[]): Promise<Form[]> {
+    return this.formModel.find({ _id: { $in: ids } }).exec();
+  }
+
   private mapToDto(form: Form): FormDto {
     const formDto = new FormDto();
     formDto._id = form._id.toHexString();
