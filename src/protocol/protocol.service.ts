@@ -21,6 +21,7 @@ export class ProtocolService {
   ): Promise<Protocol> {
     const createdProtocol = new this.protocolModel({
       name: createProtocolInput.name,
+      description: createProtocolInput.description, // <-- Añadido
       module: createProtocolInput.module,
       forms: createProtocolInput.formIds,
       createdBy: userId,
@@ -80,11 +81,11 @@ export class ProtocolService {
   }
 
   async findAll(): Promise<Protocol[]> {
-    return this.protocolModel.find().populate('forms').exec();
+    return this.protocolModel.find().exec();
   }
 
   async findOne(id: string): Promise<Protocol | null> {
-    return this.protocolModel.findById(id).populate('forms').exec();
+    return this.protocolModel.findById(id).exec();
   }
 
   async countProtocols(): Promise<number> {

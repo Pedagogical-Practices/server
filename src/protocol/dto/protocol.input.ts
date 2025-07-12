@@ -6,11 +6,14 @@ export class CreateProtocolInput {
   @Field()
   name: string;
 
-  @Field()
-  module: string;
+  @Field({ nullable: true })
+  description?: string;
 
-  @Field(() => [ID]) // Ahora es un array de IDs
-  formIds: string[]; // Cambiado de formId a formIds
+  @Field({ nullable: true })
+  module?: string;
+
+  @Field(() => [ID], { nullable: true, defaultValue: [] }) // Ahora es un array de IDs
+  formIds?: string[]; // Cambiado de formId a formIds
 }
 
 @InputType()
@@ -23,6 +26,9 @@ export class UpdateProtocolInput {
 
   @Field({ nullable: true })
   name?: string;
+
+  @Field({ nullable: true })
+  description?: string;
 
   @Field({ nullable: true })
   module?: string;

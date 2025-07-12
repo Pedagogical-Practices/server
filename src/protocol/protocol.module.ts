@@ -4,6 +4,7 @@ import { ProtocolResolver } from './protocol.resolver';
 import { ProtocolService } from './protocol.service';
 import { Protocol, ProtocolSchema } from './schemas/protocol.schema';
 import { AuthModule } from 'src/auth/auth.module';
+import { FormModule } from 'src/form/form.module'; // Importar FormModule
 
 @Module({
   imports: [
@@ -11,8 +12,9 @@ import { AuthModule } from 'src/auth/auth.module';
       { name: Protocol.name, schema: ProtocolSchema },
     ]),
     AuthModule,
+    FormModule, // Añadir FormModule
   ],
   providers: [ProtocolResolver, ProtocolService],
-  exports: [ProtocolService], // <--- Añadido
+  exports: [ProtocolService],
 })
 export class ProtocolModule {}
