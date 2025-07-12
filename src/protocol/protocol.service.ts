@@ -80,11 +80,11 @@ export class ProtocolService {
   }
 
   async findAll(): Promise<Protocol[]> {
-    return this.protocolModel.find().populate('forms').exec();
+    return this.protocolModel.find().exec();
   }
 
   async findOne(id: string): Promise<Protocol | null> {
-    return this.protocolModel.findById(id).populate('forms').exec();
+    return this.protocolModel.findById(id).exec();
   }
 
   async countProtocols(): Promise<number> {
