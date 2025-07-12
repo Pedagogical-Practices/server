@@ -21,6 +21,7 @@ export class ProtocolService {
   ): Promise<Protocol> {
     const createdProtocol = new this.protocolModel({
       name: createProtocolInput.name,
+      description: createProtocolInput.description, // <-- Añadido
       module: createProtocolInput.module,
       forms: createProtocolInput.formIds,
       createdBy: userId,
