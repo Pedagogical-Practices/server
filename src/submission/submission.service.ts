@@ -65,7 +65,7 @@ export class SubmissionService {
     } else if (user.role === UserRoles.TEACHER_DIRECTIVE) {
       // Un docente/directivo puede ver las submissions de sus estudiantes
       // Esto requiere obtener las prácticas donde es asesor y luego los estudiantes asociados
-      const practices = await this.practiceService.findAll(user); // Reutilizar el método findAll de practiceservice
+      const practices = await this.practiceService.findForUser(user); // Reutilizar el método findForUser de practiceservice
       const studentIds = practices.map(p => p.student.toString());
       query.submittedBy = { $in: studentIds };
     } else if (!(user.role === UserRoles.ADMIN || user.role === UserRoles.COORDINATOR)) {
@@ -88,7 +88,7 @@ export class SubmissionService {
       throw new UnauthorizedException('No autorizado para ver esta submission');
     } else if (user.role === UserRoles.TEACHER_DIRECTIVE) {
       // Un docente/directivo puede ver las submissions de sus estudiantes
-      const practices = await this.practiceService.findAll(user); // Reutilizar el método findAll de practiceservice
+      const practices = await this.practiceService.findForUser(user); // Reutilizar el método findForUser de practiceservice
       const studentIds = practices.map(p => p.student.toString());
       if (!studentIds.includes(submission.submittedBy.toString())) {
         throw new UnauthorizedException('No autorizado para ver esta submission');
@@ -107,7 +107,7 @@ export class SubmissionService {
     if (user.role === UserRoles.STUDENT) {
       query.submittedBy = user._id;
     } else if (user.role === UserRoles.TEACHER_DIRECTIVE) {
-      const practices = await this.practiceService.findAll(user);
+      const practices = await this.practiceService.findForUser(user);
       const studentIds = practices.map(p => p.student.toString());
       query.submittedBy = { $in: studentIds };
     } else if (!(user.role === UserRoles.ADMIN || user.role === UserRoles.COORDINATOR)) {

@@ -66,33 +66,37 @@ export class PracticeService {
     return populatedPractice;
   }
 
-  async findAll(user: UserDto): Promise<Practice[]> {
+  async findAll(): Promise<Practice[]> {
+    return this.practiceModel
+      .find()
+      .populate('student')
+      .populate('advisor')
+      .populate({ path: 'protocol', populate: { path: 'forms' } })
+      .populate('filledForms.form')
+      .populate('createdBy')
+      .exec();
+  }
+
+  async findForUser(user: UserDto): Promise<Practice[]> {
     let query: any = {};
 
     if (user.role === UserRoles.STUDENT) {
-      query = { student: user._id };
+      query = { student: new Types.ObjectId(user._id) };
     } else if (user.role === UserRoles.TEACHER_DIRECTIVE) {
-      query = { advisor: user._id };
-    } else if (user.role === UserRoles.FAMILY) {
-      // Assuming the user object for a family member has a reference to the student
-      // This might need adjustment based on the actual User schema for families
-      if (!user.studentId) {
-        throw new UnauthorizedException('Usuario familiar no está vinculado a ningún estudiante');
-      }
-      query = { student: user.studentId };
-      // Admins and Coordinators can see all practices
-      query = {};
+      query = { advisor: new Types.ObjectId(user._id) };
+    } else if (user.role === UserRoles.FAMILY && user.studentId) {
+      query = { student: new Types.ObjectId(user.studentId) };
     } else {
-      throw new UnauthorizedException('No autorizado para ver prácticas');
+      return []; // Return empty for other roles or family without studentId
     }
 
     return this.practiceModel
       .find(query)
       .populate('student')
       .populate('advisor')
-      .populate({ path: 'protocol', populate: { path: 'forms' } }) // Popula forms dentro de protocol
-      .populate('filledForms.form') // Popula el objeto Form dentro de filledForms
-      .populate('createdBy') // Asegurarse de popular createdBy también
+      .populate({ path: 'protocol', populate: { path: 'forms' } })
+      .populate('filledForms.form')
+      .populate('createdBy')
       .exec();
   }
 
@@ -101,8 +105,9 @@ export class PracticeService {
       .findById(id)
       .populate('student')
       .populate('advisor')
-      .populate({ path: 'protocol', populate: { path: 'forms' } }) // Popula forms dentro de protocol
-      .populate('filledForms.form') // Popula el objeto Form dentro de filledForms
+      .populate({ path: 'protocol', populate: { path: 'forms' } })
+      .populate('filledForms.form')
+      .populate('filledForms.submission') // Popula el objeto Submission dentro de filledForms
       .populate('createdBy') // Asegurarse de popular createdBy también
       .exec();
 
@@ -110,24 +115,29 @@ export class PracticeService {
       throw new NotFoundException(`Práctica #${id} no encontrada`);
     }
 
-    // Verificar permisos basados en el rol
-    if (user.role === UserRoles.STUDENT && practice.student.toString() !== user._id) {
-      throw new UnauthorizedException('No autorizado para ver esta práctica');
-    } else if (user.role === UserRoles.TEACHER_DIRECTIVE && practice.advisor.toString() !== user._id) {
-      throw new UnauthorizedException('No autorizado para ver esta práctica');
-    } else if (!(user.role === UserRoles.ADMIN || user.role === UserRoles.COORDINATOR)) {
-      // Si no es admin, coordinador, estudiante de la práctica o asesor de la práctica
-      // y no es un rol que deba ver todas las prácticas, entonces no está autorizado.
-      // Los roles ADMIN y COORDINATOR ya tienen acceso total.
-      // Los roles STUDENT y TEACHER_DIRECTIVE ya fueron validados arriba.
-      // Cualquier otro rol no debería tener acceso a menos que se especifique.
-      // Por ahora, si no es uno de los roles permitidos, se deniega el acceso.
-      if (practice.student.toString() !== user._id && practice.advisor.toString() !== user._id) {
-        throw new UnauthorizedException('No autorizado para ver esta práctica');
-      }
+    // Permitir acceso si el usuario es ADMIN o COORDINATOR
+    if (user.role === UserRoles.ADMIN || user.role === UserRoles.COORDINATOR) {
+      return practice;
     }
 
-    return practice;
+    // Permitir acceso si el usuario es el estudiante de la práctica
+    if (user.role === UserRoles.STUDENT && practice.student._id.toString() === user._id) {
+      return practice;
+    }
+
+    // Permitir acceso si el usuario es el asesor de la práctica
+    if (user.role === UserRoles.TEACHER_DIRECTIVE && practice.advisor._id.toString() === user._id) {
+      return practice;
+    }
+
+    // Permitir acceso si el usuario es un familiar y está vinculado al estudiante de la práctica
+    // (Asumiendo que user.studentId está populado y es el ID del estudiante)
+    if (user.role === UserRoles.FAMILY && user.studentId && practice.student._id.toString() === user.studentId) {
+      return practice;
+    }
+
+    // Si ninguna de las condiciones anteriores se cumple, denegar el acceso
+    throw new UnauthorizedException('No autorizado para ver esta práctica');
   }
 
   async update(

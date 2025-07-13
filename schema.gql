@@ -327,6 +327,7 @@ type Query {
   institution(id: String!): Institution!
   institutions(search: String): [Institution!]!
   me: UserDto
+  myPractices: [PracticeDto!]!
   practice(id: String!): PracticeDto!
   practices: [PracticeDto!]!
   practicesCount: Int!
@@ -401,6 +402,7 @@ type User {
   email: String!
   name: String!
   role: String!
+  studentId: ID
 }
 
 type UserDto {
@@ -408,4 +410,5 @@ type UserDto {
   email: String!
   name: String!
   role: String!
+  studentId: ID
 }

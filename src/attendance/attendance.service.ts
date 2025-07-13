@@ -17,14 +17,14 @@ export class AttendanceService {
   ) {}
 
   async findByProtocolId(protocolId: string, user: UserDto): Promise<AttendanceRecord[]> {
-    let query: any = { protocolId };
+    let query: any = {};
 
     if (user.role === UserRoles.ADMIN || user.role === UserRoles.COORDINATOR) {
       // Admins and Coordinators can see all attendance records for the protocol
       // No additional filtering needed for query
     } else if (user.role === UserRoles.TEACHER_DIRECTIVE) {
       // A teacher/directive can only see attendance records for practices they advise
-      const practices = await this.practiceService.findAll(user); // This method already filters by advisor
+      const practices = await this.practiceService.findForUser(user); // This method already filters by advisor
       const studentIds = practices.map(p => p.student.toString());
       // Filter attendance records by students associated with practices advised by this teacher
       query.submittedBy = { $in: studentIds };
@@ -200,7 +200,7 @@ export class AttendanceService {
       query = {};
     } else if (user.role === UserRoles.TEACHER_DIRECTIVE) {
       // A teacher/directive can only see attendance records for practices they advise
-      const practices = await this.practiceService.findAll(user); // This method already filters by advisor
+      const practices = await this.practiceService.findForUser(user); // This method already filters by advisor
       const studentIds = practices.map(p => p.student.toString());
       // Filter attendance records by students associated with practices advised by this teacher
       query.submittedBy = { $in: studentIds };

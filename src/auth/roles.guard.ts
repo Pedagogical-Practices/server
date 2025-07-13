@@ -1,10 +1,12 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { ROLES_KEY } from './roles.decorator';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
+  private readonly logger = new Logger(RolesGuard.name);
+
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
@@ -17,6 +19,15 @@ export class RolesGuard implements CanActivate {
     }
     const ctx = GqlExecutionContext.create(context);
     const { user } = ctx.getContext().req;
+
+    this.logger.debug(`Required roles: ${requiredRoles}`);
+    this.logger.debug(`User role: ${user?.role}`);
+
+    if (!user) {
+      this.logger.warn('RolesGuard: User object is undefined or null.');
+      return false; // Deny access if user is not defined
+    }
+
     return requiredRoles.includes(user.role);
   }
 }

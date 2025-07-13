@@ -12,12 +12,11 @@ import { UserDto } from '../auth/dto/user.dto';
 import { PracticeStatus } from './schemas/practice.schema'; // Importar PracticeStatus
 
 @Resolver(() => PracticeDto) // Usar PracticeDto como tipo de salida
-@UseGuards(AuthGuard)
 export class PracticeResolver {
   constructor(private readonly practiceService: PracticeService) {}
 
   @Mutation(() => PracticeDto)
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
   async createPractice(
     @Args('createPracticeInput') createPracticeInput: CreatePracticeInput,
@@ -29,7 +28,7 @@ export class PracticeResolver {
   }
 
   @Mutation(() => PracticeDto)
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
   async updatePractice(
     @Args('updatePracticeInput') updatePracticeInput: UpdatePracticeInput,
@@ -39,21 +38,27 @@ export class PracticeResolver {
   }
 
   @Mutation(() => Boolean)
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
   async removePractice(@Args('id') id: string): Promise<boolean> {
     return this.practiceService.remove(id);
   }
 
   @Query(() => [PracticeDto])
-  @UseGuards(RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR, UserRoles.TEACHER_DIRECTIVE, UserRoles.STUDENT)
-  async practices(@CurrentUser() user: UserDto): Promise<Practice[]> {
-    return this.practiceService.findAll(user);
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
+  async practices(): Promise<Practice[]> {
+    return this.practiceService.findAll();
+  }
+
+  @Query(() => [PracticeDto])
+  @UseGuards(AuthGuard) // Ensures the user is authenticated
+  async myPractices(@CurrentUser() user: UserDto): Promise<Practice[]> {
+    return this.practiceService.findForUser(user);
   }
 
   @Query(() => PracticeDto)
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR, UserRoles.TEACHER_DIRECTIVE, UserRoles.STUDENT)
   async practice(@Args('id') id: string, @CurrentUser() user: UserDto): Promise<Practice> {
     return this.practiceService.findOne(id, user);
@@ -61,7 +66,7 @@ export class PracticeResolver {
 
   // Mutación para registrar una submission en un formulario de una práctica
   @Mutation(() => PracticeDto)
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR, UserRoles.TEACHER_DIRECTIVE)
   async registerFormSubmission(
     @Args('practiceId') practiceId: string,
@@ -81,7 +86,7 @@ export class PracticeResolver {
   }
 
   @Query(() => Int)
-  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
   async practicesCount(): Promise<number> {
     return this.practiceService.countPractices();
