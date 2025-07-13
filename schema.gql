@@ -104,7 +104,7 @@ type FilledForm {
 }
 
 type FilledFormDto {
-  form: Form!
+  form: Form
   formId: ID!
   submission: Submission
   submissionId: ID
@@ -293,7 +293,7 @@ type PracticeDto {
   createdBy: UserDto!
   filledForms: [FilledFormDto!]!
   institutionName: String!
-  protocol: Protocol!
+  protocol: Protocol
   status: String!
   student: UserDto!
 }

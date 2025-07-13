@@ -9,7 +9,7 @@ export class FilledFormDto {
   @Field(() => ID)
   formId: string; // ID del formulario
 
-  @Field(() => Form)
+  @Field(() => Form, { nullable: true })
   form: Form; // Objeto Form populado
 
   @Field(() => ID, { nullable: true })
@@ -30,7 +30,7 @@ export class PracticeDto {
   @Field(() => UserDto)
   advisor: UserDto;
 
-  @Field(() => Protocol)
+  @Field(() => Protocol, { nullable: true })
   protocol: Protocol;
 
   @Field()
