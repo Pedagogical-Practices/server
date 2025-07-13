@@ -73,7 +73,13 @@ export class PracticeService {
       query = { student: user._id };
     } else if (user.role === UserRoles.TEACHER_DIRECTIVE) {
       query = { advisor: user._id };
-    } else if (user.role === UserRoles.ADMIN || user.role === UserRoles.COORDINATOR) {
+    } else if (user.role === UserRoles.FAMILY) {
+      // Assuming the user object for a family member has a reference to the student
+      // This might need adjustment based on the actual User schema for families
+      if (!user.studentId) {
+        throw new UnauthorizedException('Usuario familiar no está vinculado a ningún estudiante');
+      }
+      query = { student: user.studentId };
       // Admins and Coordinators can see all practices
       query = {};
     } else {
