@@ -33,7 +33,7 @@ export class FormResolver {
 
   @Query(() => FormDto)
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
+  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR, UserRoles.STUDENT)
   async form(@Args('id') id: string) {
     return this.formService.findOne(id);
   }

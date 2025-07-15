@@ -67,7 +67,7 @@ export class PracticeResolver {
   // Mutación para registrar una submission en un formulario de una práctica
   @Mutation(() => PracticeDto)
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR, UserRoles.TEACHER_DIRECTIVE)
+  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR, UserRoles.TEACHER_DIRECTIVE, UserRoles.STUDENT)
   async registerFormSubmission(
     @Args('practiceId') practiceId: string,
     @Args('formId') formId: string,

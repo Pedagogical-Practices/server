@@ -32,7 +32,7 @@ export class SubmissionResolver {
     @Args('updateSubmissionInput') updateSubmissionInput: UpdateSubmissionInput,
     @CurrentUser() user: UserDto,
   ): Promise<Submission | null> {
-    return this.submissionService.update(updateSubmissionInput, user._id);
+    return this.submissionService.update(updateSubmissionInput, user);
   }
 
   @Mutation(() => Boolean)

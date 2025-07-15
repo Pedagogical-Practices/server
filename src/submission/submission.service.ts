@@ -28,24 +28,26 @@ export class SubmissionService {
 
   async update(
     updateSubmissionInput: UpdateSubmissionInput,
-    userId: string,
+    user: UserDto,
   ): Promise<Submission | null> {
     const { id, ...updateData } = updateSubmissionInput;
-    // Solo el usuario que lo creó o un admin/coordinator puede actualizarlo
     const existingSubmission = await this.submissionModel.findById(id).exec();
+
     if (!existingSubmission) {
       throw new NotFoundException(`Submission #${id} no encontrada`);
     }
-    if (existingSubmission.submittedBy.toString() !== userId) {
-      // Aquí se necesitaría una verificación de rol adicional para admin/coordinator
-      // Por ahora, solo el creador puede actualizar
+
+    const isOwner = existingSubmission.submittedBy.toString() === user._id;
+    const isAdminOrCoordinator = [UserRoles.ADMIN, UserRoles.COORDINATOR].includes(user.role);
+
+    if (!isOwner && !isAdminOrCoordinator) {
       throw new UnauthorizedException('No autorizado para actualizar esta submission');
     }
 
     return this.submissionModel
       .findByIdAndUpdate(
         id,
-        { ...updateData, submittedBy: userId },
+        { ...updateData },
         { new: true },
       )
       .exec();
