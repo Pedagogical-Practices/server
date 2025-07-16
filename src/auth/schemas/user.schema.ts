@@ -27,6 +27,10 @@ export class User extends Document {
     default: UserRoles.STUDENT,
   })
   role: string;
+
+  @Field(() => ID, { nullable: true })
+  @Prop({ type: Types.ObjectId, ref: 'User', required: false })
+  studentId?: Types.ObjectId;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -14,6 +14,9 @@ export class UserDto {
   @Field()
   role: string;
 
+  @Field(() => ID, { nullable: true })
+  studentId?: string;
+
   // @Field() // Eliminado: No exponer la contraseña
   // password: string;
 }

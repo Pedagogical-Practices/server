@@ -14,6 +14,10 @@ export class Submission extends Document {
   @Prop({ type: String, ref: 'Protocol', required: true })
   protocolId: string;
 
+  @Field(() => ID, { nullable: true })
+  @Prop({ type: String, ref: 'Practice', required: false })
+  practiceId: string;
+
   @Field(() => ID)
   @Prop({ type: String, ref: 'Form', required: true })
   formId: string;
