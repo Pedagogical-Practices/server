@@ -16,9 +16,14 @@ export class AuthGuard implements CanActivate {
   constructor(private jwtService: JwtService) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const ctx = GqlExecutionContext.create(context);
-    const { req } = ctx.getContext();
-    const authHeader = req.headers.authorization;
+    const gqlContext = GqlExecutionContext.create(context);
+    const { req, connection } = gqlContext.getContext();
+
+    // Determine the request object based on the context type (HTTP or WebSocket)
+    const request = connection ? connection.context : req;
+
+    const authHeader =
+      request.headers?.authorization || request.Authorization;
 
     if (!authHeader) {
       this.logger.warn('No authorization token provided.');
@@ -30,7 +35,14 @@ export class AuthGuard implements CanActivate {
     try {
       const payload: JwtPayload = this.jwtService.verify(token);
       this.logger.log(`Token verified for user: ${payload.email}`);
-      req.user = payload;
+      
+      // Attach user to the appropriate context
+      if (connection) {
+        connection.context.user = payload;
+      } else {
+        req.user = payload;
+      }
+      
       return true;
     } catch (error) {
       this.logger.error('Token verification failed', error.stack);

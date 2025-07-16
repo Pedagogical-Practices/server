@@ -83,6 +83,7 @@ input CreateProtocolInput {
 input CreateSubmissionInput {
   data: JSON!
   formId: ID!
+  practiceId: ID!
   protocolId: ID!
 }
 
@@ -104,7 +105,7 @@ type FilledForm {
 }
 
 type FilledFormDto {
-  form: Form!
+  form: Form
   formId: ID!
   submission: Submission
   submissionId: ID
@@ -241,6 +242,11 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 """
 scalar JSON
 
+"""
+The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSONObject
+
 type Mutation {
   createAttendanceRecord(createAttendanceRecordInput: CreateAttendanceRecordInput!): AttendanceRecord!
   createCourse(createCourseInput: CreateCourseInput!): Course!
@@ -293,7 +299,7 @@ type PracticeDto {
   createdBy: UserDto!
   filledForms: [FilledFormDto!]!
   institutionName: String!
-  protocol: Protocol!
+  protocol: Protocol
   status: String!
   student: UserDto!
 }
@@ -327,6 +333,7 @@ type Query {
   institution(id: String!): Institution!
   institutions(search: String): [Institution!]!
   me: UserDto
+  myPractices: [PracticeDto!]!
   practice(id: String!): PracticeDto!
   practices: [PracticeDto!]!
   practicesCount: Int!
@@ -345,6 +352,7 @@ type Submission {
   createdAt: String!
   data: JSON!
   formId: ID!
+  practiceId: ID
   protocolId: ID!
   submittedBy: String!
 }
@@ -386,6 +394,7 @@ input UpdateProtocolInput {
 }
 
 input UpdateSubmissionInput {
+  data: JSONObject
   id: ID!
 }
 
@@ -401,6 +410,7 @@ type User {
   email: String!
   name: String!
   role: String!
+  studentId: ID
 }
 
 type UserDto {
@@ -408,4 +418,5 @@ type UserDto {
   email: String!
   name: String!
   role: String!
+  studentId: ID
 }

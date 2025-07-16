@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, UnauthorizedException, Inject, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Practice, FilledForm } from './schemas/practice.schema';
@@ -17,7 +23,8 @@ export class PracticeService {
     private authService: AuthService,
     private protocolService: ProtocolService,
     private formService: FormService,
-    @Inject(forwardRef(() => SubmissionService)) private submissionService: SubmissionService,
+    @Inject(forwardRef(() => SubmissionService))
+    private submissionService: SubmissionService,
   ) {}
 
   async create(
@@ -39,10 +46,12 @@ export class PracticeService {
     if (!protocol) throw new NotFoundException('Protocolo no encontrado');
 
     // Inicializar filledForms con los formularios del protocolo
-    const initialFilledForms: FilledForm[] = protocol.forms.map((formRef: any) => ({
-      form: formRef._id, // Usar el _id del formulario populado
-      submission: undefined, // Cambiado de null a undefined
-    }));
+    const initialFilledForms: FilledForm[] = protocol.forms.map(
+      (formRef: any) => ({
+        form: formRef._id, // Usar el _id del formulario populado
+        submission: undefined, // Cambiado de null a undefined
+      }),
+    );
 
     const createdPractice = new this.practiceModel({
       student: new Types.ObjectId(studentId),
@@ -55,38 +64,47 @@ export class PracticeService {
     });
 
     const savedPractice = await createdPractice.save();
-    const populatedPractice = await savedPractice
-      .populate([
-        { path: 'student' },
-        { path: 'advisor' },
-        { path: 'protocol', populate: { path: 'forms' } }, // Popula forms dentro de protocol
-        { path: 'filledForms.form' }, // Popula el objeto Form dentro de filledForms
-        { path: 'createdBy' } // Asegurarse de popular createdBy también
-      ]);
+    const populatedPractice = await savedPractice.populate([
+      { path: 'student' },
+      { path: 'advisor' },
+      { path: 'protocol', populate: { path: 'forms' } }, // Popula forms dentro de protocol
+      { path: 'filledForms.form' }, // Popula el objeto Form dentro de filledForms
+      { path: 'createdBy' }, // Asegurarse de popular createdBy también
+    ]);
     return populatedPractice;
   }
 
-  async findAll(user: UserDto): Promise<Practice[]> {
+  async findAll(): Promise<Practice[]> {
+    return this.practiceModel
+      .find()
+      .populate('student')
+      .populate('advisor')
+      .populate({ path: 'protocol', populate: { path: 'forms' } })
+      .populate('filledForms.form')
+      .populate('createdBy')
+      .exec();
+  }
+
+  async findForUser(user: UserDto): Promise<Practice[]> {
     let query: any = {};
 
     if (user.role === UserRoles.STUDENT) {
-      query = { student: user._id };
+      query = { student: new Types.ObjectId(user._id) };
     } else if (user.role === UserRoles.TEACHER_DIRECTIVE) {
-      query = { advisor: user._id };
-    } else if (user.role === UserRoles.ADMIN || user.role === UserRoles.COORDINATOR) {
-      // Admins and Coordinators can see all practices
-      query = {};
+      query = { advisor: new Types.ObjectId(user._id) };
+    } else if (user.role === UserRoles.FAMILY && user.studentId) {
+      query = { student: new Types.ObjectId(user.studentId) };
     } else {
-      throw new UnauthorizedException('No autorizado para ver prácticas');
+      return []; // Return empty for other roles or family without studentId
     }
 
     return this.practiceModel
       .find(query)
       .populate('student')
       .populate('advisor')
-      .populate({ path: 'protocol', populate: { path: 'forms' } }) // Popula forms dentro de protocol
-      .populate('filledForms.form') // Popula el objeto Form dentro de filledForms
-      .populate('createdBy') // Asegurarse de popular createdBy también
+      .populate({ path: 'protocol', populate: { path: 'forms' } })
+      .populate('filledForms.form')
+      .populate('createdBy')
       .exec();
   }
 
@@ -95,33 +113,54 @@ export class PracticeService {
       .findById(id)
       .populate('student')
       .populate('advisor')
-      .populate({ path: 'protocol', populate: { path: 'forms' } }) // Popula forms dentro de protocol
-      .populate('filledForms.form') // Popula el objeto Form dentro de filledForms
-      .populate('createdBy') // Asegurarse de popular createdBy también
+      .populate({ path: 'protocol', populate: { path: 'forms' } })
+      .populate('filledForms.form')
+      .populate('filledForms.submission')
+      .populate('createdBy')
       .exec();
+
+    console.log(
+      'PracticeService: findOne - practice after population:',
+      JSON.stringify(practice, null, 2),
+    );
 
     if (!practice) {
       throw new NotFoundException(`Práctica #${id} no encontrada`);
     }
 
-    // Verificar permisos basados en el rol
-    if (user.role === UserRoles.STUDENT && practice.student.toString() !== user._id) {
-      throw new UnauthorizedException('No autorizado para ver esta práctica');
-    } else if (user.role === UserRoles.TEACHER_DIRECTIVE && practice.advisor.toString() !== user._id) {
-      throw new UnauthorizedException('No autorizado para ver esta práctica');
-    } else if (!(user.role === UserRoles.ADMIN || user.role === UserRoles.COORDINATOR)) {
-      // Si no es admin, coordinador, estudiante de la práctica o asesor de la práctica
-      // y no es un rol que deba ver todas las prácticas, entonces no está autorizado.
-      // Los roles ADMIN y COORDINATOR ya tienen acceso total.
-      // Los roles STUDENT y TEACHER_DIRECTIVE ya fueron validados arriba.
-      // Cualquier otro rol no debería tener acceso a menos que se especifique.
-      // Por ahora, si no es uno de los roles permitidos, se deniega el acceso.
-      if (practice.student.toString() !== user._id && practice.advisor.toString() !== user._id) {
-        throw new UnauthorizedException('No autorizado para ver esta práctica');
-      }
+    // Permitir acceso si el usuario es ADMIN o COORDINATOR
+    if (user.role === UserRoles.ADMIN || user.role === UserRoles.COORDINATOR) {
+      return practice;
     }
 
-    return practice;
+    // Permitir acceso si el usuario es el estudiante de la práctica
+    if (
+      user.role === UserRoles.STUDENT &&
+      practice.student._id.toString() === user._id
+    ) {
+      return practice;
+    }
+
+    // Permitir acceso si el usuario es el asesor de la práctica
+    if (
+      user.role === UserRoles.TEACHER_DIRECTIVE &&
+      practice.advisor._id.toString() === user._id
+    ) {
+      return practice;
+    }
+
+    // Permitir acceso si el usuario es un familiar y está vinculado al estudiante de la práctica
+    // (Asumiendo que user.studentId está populado y es el ID del estudiante)
+    if (
+      user.role === UserRoles.FAMILY &&
+      user.studentId &&
+      practice.student._id.toString() === user.studentId
+    ) {
+      return practice;
+    }
+
+    // Si ninguna de las condiciones anteriores se cumple, denegar el acceso
+    throw new UnauthorizedException('No autorizado para ver esta práctica');
   }
 
   async update(
@@ -168,7 +207,9 @@ export class PracticeService {
       .exec();
 
     if (!updatedPractice) {
-      throw new NotFoundException(`Práctica #${id} no encontrada después de actualizar`);
+      throw new NotFoundException(
+        `Práctica #${id} no encontrada después de actualizar`,
+      );
     }
     return updatedPractice;
   }
@@ -205,18 +246,34 @@ export class PracticeService {
       );
     }
 
+    console.log(
+      'PracticeService: registerFormSubmission - Before setting submission, filledForm:',
+      JSON.stringify(filledForm, null, 2),
+    );
     filledForm.submission = new Types.ObjectId(submissionId);
-    await practice.save();
+    console.log(
+      'PracticeService: registerFormSubmission - After setting submission, filledForm:',
+      JSON.stringify(filledForm, null, 2),
+    );
 
-    const populatedPractice = await practice
-      .populate([
-        { path: 'student' },
-        { path: 'advisor' },
-        { path: 'protocol', populate: { path: 'forms' } }, // Popula forms dentro de protocol
-        { path: 'filledForms.form' }, // Popula el objeto Form dentro de filledForms
-        { path: 'filledForms.submission' },
-        { path: 'createdBy' } // Asegurarse de popular createdBy también
-      ]);
+    await practice.save();
+    console.log(
+      'PracticeService: registerFormSubmission - Practice after save:',
+      JSON.stringify(practice, null, 2),
+    );
+
+    const populatedPractice = await practice.populate([
+      { path: 'student' },
+      { path: 'advisor' },
+      { path: 'protocol', populate: { path: 'forms' } }, // Popula forms dentro de protocol
+      { path: 'filledForms.form' }, // Popula el objeto Form dentro de filledForms
+      { path: 'filledForms.submission' },
+      { path: 'createdBy' }, // Asegurarse de popular createdBy también
+    ]);
+    console.log(
+      'PracticeService: registerFormSubmission - Populated practice before return:',
+      JSON.stringify(populatedPractice, null, 2),
+    );
     return populatedPractice;
   }
 

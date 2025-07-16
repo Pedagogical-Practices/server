@@ -21,7 +21,7 @@ export class DashboardService {
     let importantDates: any[] = [];
 
     // Lógica para obtener fechas de Prácticas
-    const practices = await this.practiceService.findAll(user);
+    const practices = await this.practiceService.findForUser(user);
     practices.forEach(practice => {
       if (practice.dueDate) {
         importantDates.push({

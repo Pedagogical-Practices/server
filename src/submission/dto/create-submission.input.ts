@@ -8,6 +8,9 @@ export class CreateSubmissionInput {
   protocolId: string;
 
   @Field(() => ID)
+  practiceId: string;
+
+  @Field(() => ID)
   formId: string;
 
   @Field(() => GraphQLJSON)
