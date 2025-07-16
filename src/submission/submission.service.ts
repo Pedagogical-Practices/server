@@ -22,6 +22,7 @@ export class SubmissionService {
     const submission = new this.submissionModel({
       ...createSubmissionInput,
       submittedBy: userId,
+      practiceId: createSubmissionInput.practiceId,
     });
     return submission.save();
   }
@@ -85,22 +86,31 @@ export class SubmissionService {
       throw new NotFoundException(`Submission #${id} no encontrada`);
     }
 
-    // Verificar permisos basados en el rol
-    if (user.role === UserRoles.STUDENT && submission.submittedBy.toString() !== user._id) {
-      throw new UnauthorizedException('No autorizado para ver esta submission');
-    } else if (user.role === UserRoles.TEACHER_DIRECTIVE) {
-      // Un docente/directivo puede ver las submissions de sus estudiantes
-      const practices = await this.practiceService.findForUser(user); // Reutilizar el método findForUser de practiceservice
-      const studentIds = practices.map(p => p.student.toString());
-      if (!studentIds.includes(submission.submittedBy.toString())) {
-        throw new UnauthorizedException('No autorizado para ver esta submission');
-      }
-    } else if (!(user.role === UserRoles.ADMIN || user.role === UserRoles.COORDINATOR)) {
-      // Si no es admin, coordinador, estudiante de la submission o docente/directivo de la submission
-      throw new UnauthorizedException('No autorizado para ver esta submission');
+    console.log("SubmissionService: findOne - user.role:", user.role);
+    console.log("SubmissionService: findOne - user._id:", user._id);
+    console.log("SubmissionService: findOne - submission.submittedBy:", submission.submittedBy.toString());
+
+    // Permitir acceso si el usuario es ADMIN o COORDINATOR
+    if (user.role === UserRoles.ADMIN || user.role === UserRoles.COORDINATOR) {
+      return submission;
     }
 
-    return submission;
+    // Permitir acceso si el usuario es el que envió la submission
+    if (user.role === UserRoles.STUDENT && submission.submittedBy.toString() === user._id) {
+      return submission;
+    }
+
+    // Permitir acceso si el usuario es un docente/directivo y la submission pertenece a uno de sus estudiantes
+    if (user.role === UserRoles.TEACHER_DIRECTIVE) {
+      const practices = await this.practiceService.findForUser(user);
+      const studentIds = practices.map(p => p.student.toString());
+      if (studentIds.includes(submission.submittedBy.toString())) {
+        return submission;
+      }
+    }
+
+    // Si ninguna de las condiciones anteriores se cumple, denegar el acceso
+    throw new UnauthorizedException('No autorizado para ver esta submission');
   }
 
   async findAll(user: UserDto): Promise<Submission[]> {
