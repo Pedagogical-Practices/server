@@ -1,61 +1,55 @@
-import { Resolver, Query, Mutation, Args, Context, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { FormService } from './form.service';
-import { FormDto } from './dto/form.dto';
+import { Form } from './schemas/form.schema';
 import { CreateFormInput } from './dto/create-form.input';
 import { UpdateFormInput } from './dto/update-form.input';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
-import { Roles, UserRoles } from '../auth/roles.decorator';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { UserDto } from '../auth/dto/user.dto';
+import { Roles } from '../auth/roles.decorator';
+import { UserRole } from '../common/enums/user-role.enum';
 
-@Resolver(() => FormDto)
+@Resolver(() => Form)
 export class FormResolver {
   constructor(private readonly formService: FormService) {}
 
-  @Mutation(() => FormDto)
+  @Mutation(() => Form)
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
+  @Roles(UserRole.ADMIN)
   async createForm(
-    @Args('createFormInput') createFormInput: CreateFormInput,
-    @CurrentUser() user: UserDto,
-  ) {
-    return this.formService.create(createFormInput, user._id);
+    @Args('input') createFormInput: CreateFormInput,
+  ): Promise<Form> {
+    return this.formService.create(createFormInput);
   }
 
-  @Query(() => [FormDto])
+  @Query(() => [Form])
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
-  async forms() {
+  @Roles(UserRole.ADMIN)
+  async forms(): Promise<Form[]> {
     return this.formService.findAll();
   }
 
-  @Query(() => FormDto)
+  @Query(() => Form)
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR, UserRoles.STUDENT)
-  async form(@Args('id') id: string) {
+  @Roles(UserRole.ADMIN, UserRole.TEACHER_DIRECTIVE, UserRole.STUDENT)
+  async form(@Args('id') id: string): Promise<Form> {
     return this.formService.findOne(id);
   }
 
-  @Mutation(() => FormDto)
+  @Mutation(() => Form)
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
-  async updateForm(@Args('updateFormInput') updateFormInput: UpdateFormInput) {
-    return this.formService.update(updateFormInput.id, updateFormInput);
+  @Roles(UserRole.ADMIN)
+  async updateForm(
+    @Args('id') id: string,
+    @Args('input') updateFormInput: UpdateFormInput,
+  ): Promise<Form> {
+    return this.formService.update(id, updateFormInput);
   }
 
-  @Mutation(() => FormDto)
+  @Mutation(() => Boolean)
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
-  async removeForm(@Args('id') id: string) {
-    return this.formService.remove(id);
-  }
-
-  @Query(() => Int)
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
-  async formsCount(): Promise<number> {
-    return this.formService.countForms();
+  @Roles(UserRole.ADMIN)
+  async deleteForm(@Args('id') id: string): Promise<boolean> {
+    return this.formService.delete(id);
   }
 }

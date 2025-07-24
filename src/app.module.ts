@@ -11,10 +11,9 @@ import { AuthModule } from './auth/auth.module';
 import { CourseModule } from './course/course.module';
 import { ProtocolModule } from './protocol/protocol.module';
 import { SubmissionModule } from './submission/submission.module';
-import { AttendanceModule } from './attendance/attendance.module';
 import { PracticeModule } from './practice/practice.module';
-import { DashboardModule } from './dashboard/dashboard.module';
-import { InstitutionModule } from './institution/institution.module';
+
+import { GraphQLJSON } from 'graphql-type-json';
 
 @Module({
   imports: [
@@ -32,6 +31,7 @@ import { InstitutionModule } from './institution/institution.module';
       driver: ApolloDriver,
       autoSchemaFile: 'schema.gql',
       sortSchema: true,
+      resolvers: { JSON: GraphQLJSON },
       debug: true,
       playground: true,
       context: ({ req }) => ({ req }),
@@ -41,10 +41,7 @@ import { InstitutionModule } from './institution/institution.module';
     CourseModule,
     ProtocolModule,
     SubmissionModule,
-    AttendanceModule,
     PracticeModule,
-    DashboardModule,
-    InstitutionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

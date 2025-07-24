@@ -1,28 +1,31 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { ObjectType, Field, ID } from '@nestjs/graphql'; // Importar ObjectType, Field, ID
-import { FormField } from './formfield.shcema'; // Asegurarse de que FormField sea un ObjectType
+import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { FormField } from './formfield.schema';
 
-@ObjectType() // Añadido
+@ObjectType()
 @Schema({ timestamps: true })
 export class Form extends Document {
-  @Field(() => ID) // Añadido
-  declare _id: Types.ObjectId;
+  @Field(() => ID)
+  declare id: string;
 
-  @Field() // Añadido
+  @Field()
   @Prop({ required: true })
   name: string;
 
-  @Field(() => [FormField]) // Añadido, asumiendo que FormField es un ObjectType
+  @Field({ nullable: true })
+  @Prop({ required: false })
+  description: string;
+
+  @Field(() => [FormField])
   @Prop({ type: [FormField], default: [] })
   fields: FormField[];
 
-  @Field(() => ID) // Añadido, asumiendo que User es un ObjectType
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  createdBy: Types.ObjectId; // O User si se popula
+  @Field()
+  createdAt: Date;
 
-  @Field() // Añadido
-  createdAt: string;
+  @Field()
+  updatedAt: Date;
 }
 
 export const FormSchema = SchemaFactory.createForClass(Form);

@@ -15,6 +15,6 @@ import { FormModule } from 'src/form/form.module'; // Importar FormModule
     FormModule, // Añadir FormModule
   ],
   providers: [ProtocolResolver, ProtocolService],
-  exports: [ProtocolService],
+  exports: [MongooseModule.forFeature([{ name: Protocol.name, schema: ProtocolSchema }]), ProtocolService],
 })
 export class ProtocolModule {}
