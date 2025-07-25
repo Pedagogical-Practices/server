@@ -1,13 +1,13 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { User } from './schemas/user.schema';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
-import { UserDto } from './dto/user.dto';
 import { AuthPayload } from './dto/auth-payload.dto';
 import * as bcrypt from 'bcrypt';
+import { UserRole } from '../common/enums/user-role.enum';
 
 @Injectable()
 export class AuthService {
@@ -18,15 +18,6 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  private mapMongooseUserToDto(user: User): UserDto {
-    return {
-      _id: user._id.toString(),
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    };
-  }
-
   async login(email: string, password: string): Promise<AuthPayload> {
     const user = await this.userModel.findOne({ email }).exec();
     this.logger.log(`Login attempt for email: ${email}`);
@@ -35,21 +26,21 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
     const payload = {
-      sub: user._id.toString(),
+      sub: user.id,
       email: user.email,
       role: user.role,
     };
     this.logger.log(`Login successful for user: ${user.email}`);
     return {
       token: this.jwtService.sign(payload),
-      user: this.mapMongooseUserToDto(user),
+      user: user,
     };
   }
 
-  async register(createUserInput: CreateUserInput): Promise<AuthPayload> {
+  async createUser(createUserInput: CreateUserInput): Promise<User> {
     const { email, password, name, role } = createUserInput;
     const existingUser = await this.userModel.findOne({ email }).exec();
-    this.logger.log(`Registration attempt for email: ${email}`);
+    this.logger.log(`User creation attempt for email: ${email}`);
     if (existingUser) {
       throw new UnauthorizedException('User already exists');
     }
@@ -60,62 +51,34 @@ export class AuthService {
       name,
       role,
     });
-    this.logger.log(`User registered: ${user.email}`);
-    const payload = {
-      sub: user._id.toString(),
-      email: user.email,
-      role: user.role,
-    };
-    return {
-      token: this.jwtService.sign(payload),
-      user: this.mapMongooseUserToDto(user),
-    };
+    this.logger.log(`User created: ${user.email}`);
+    return user;
   }
 
-  async updateProfile(
-    id: string,
-    updateUserInput: UpdateUserInput,
-  ): Promise<UserDto> {
+  async updateUser(id: string, updateUserInput: UpdateUserInput): Promise<User> {
     const user = await this.userModel
       .findByIdAndUpdate(id, updateUserInput, { new: true })
       .exec();
-    this.logger.log(`Updating profile for user ID: ${id}`);
+    this.logger.log(`Updating user ID: ${id}`);
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-    return this.mapMongooseUserToDto(user);
+    return user;
   }
 
-  async updateUserById(
-    id: string,
-    updateUserInput: UpdateUserInput,
-  ): Promise<UserDto> {
-    const user = await this.userModel
-      .findByIdAndUpdate(id, updateUserInput, { new: true })
-      .exec();
-    if (!user) {
-      throw new UnauthorizedException('User not found');
-    }
-    return this.mapMongooseUserToDto(user);
-  }
-
-  async findOne(id: string): Promise<UserDto | null> {
+  async findOne(id: string): Promise<User | null> {
     this.logger.log(`Finding user by ID: ${id}`);
     const user = await this.userModel.findById(id).exec();
-    return user ? this.mapMongooseUserToDto(user) : null;
+    return user;
   }
 
-  async findAll(): Promise<UserDto[]> {
+  async findAll(): Promise<User[]> {
     const users = await this.userModel.find().exec();
-    return users.map(user => this.mapMongooseUserToDto(user));
+    return users;
   }
 
   async deleteUser(id: string): Promise<boolean> {
     const result = await this.userModel.deleteOne({ _id: id }).exec();
     return result.deletedCount > 0;
-  }
-
-  async countUsers(): Promise<number> {
-    return this.userModel.countDocuments().exec();
   }
 }

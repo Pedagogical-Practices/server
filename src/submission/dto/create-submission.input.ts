@@ -1,18 +1,17 @@
-// create-submission.input.ts
 import { InputType, Field, ID } from '@nestjs/graphql';
 import { GraphQLJSON } from 'graphql-type-json';
 
 @InputType()
 export class CreateSubmissionInput {
   @Field(() => ID)
-  protocolId: string;
-
-  @Field(() => ID)
   practiceId: string;
 
   @Field(() => ID)
-  formId: string;
+  protocolId: string;
 
   @Field(() => GraphQLJSON)
-  data: any;
+  formData: any;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  locationData?: any;
 }

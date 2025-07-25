@@ -1,14 +1,8 @@
-import { Field, InputType } from '@nestjs/graphql';
-import { FormFieldInput } from './form-field.input';
+import { Field, InputType, PartialType } from '@nestjs/graphql';
+import { CreateFormInput } from './create-form.input';
 
 @InputType()
-export class UpdateFormInput {
-  @Field()
-  id: string;
-
-  @Field({ nullable: true })
-  name: string;
-
-  @Field(() => [FormFieldInput], { nullable: true })
-  fields: FormFieldInput[];
+export class UpdateFormInput extends PartialType(CreateFormInput) {
+  @Field(() => String, { nullable: true })
+  id?: string;
 }

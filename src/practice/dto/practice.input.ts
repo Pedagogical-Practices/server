@@ -1,25 +1,22 @@
 import { InputType, Field, ID } from '@nestjs/graphql';
-import { PracticeStatus } from '../schemas/practice.schema'; // Importar el enum de estados
+import { PracticeStatus } from '../../common/enums/practice-status.enum';
 
 @InputType()
 export class CreatePracticeInput {
   @Field(() => ID)
+  courseId: string;
+
+  @Field(() => ID)
   studentId: string;
 
   @Field(() => ID)
-  advisorId: string;
+  teacherId: string;
 
-  @Field(() => ID)
-  protocolId: string;
+  @Field(() => PracticeStatus, { nullable: true })
+  status?: PracticeStatus;
 
-  @Field()
-  institutionName: string;
-
-  @Field()
-  courseName: string;
-
-  @Field({ nullable: true })
-  dueDate?: string;
+  @Field(() => [ID], { nullable: true })
+  protocolIds?: string[];
 }
 
 @InputType()
@@ -28,23 +25,17 @@ export class UpdatePracticeInput {
   id: string;
 
   @Field(() => ID, { nullable: true })
+  courseId?: string;
+
+  @Field(() => ID, { nullable: true })
   studentId?: string;
 
   @Field(() => ID, { nullable: true })
-  advisorId?: string;
+  teacherId?: string;
 
-  @Field(() => ID, { nullable: true })
-  protocolId?: string;
-
-  @Field({ nullable: true })
-  institutionName?: string;
-
-  @Field({ nullable: true })
-  courseName?: string;
-
-  @Field({ nullable: true })
-  dueDate?: string;
-
-  @Field(() => PracticeStatus, { nullable: true }) // Usar el enum de estados
+  @Field(() => PracticeStatus, { nullable: true })
   status?: PracticeStatus;
+
+  @Field(() => [ID], { nullable: true })
+  protocolIds?: string[];
 }

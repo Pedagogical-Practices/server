@@ -1,13 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { ObjectType, Field, ID } from '@nestjs/graphql';
-import { UserRoles } from '../roles.decorator';
+import { UserRole } from '../../common/enums/user-role.enum';
 
 @ObjectType()
-@Schema()
+@Schema({ timestamps: true })
 export class User extends Document {
   @Field(() => ID)
-  declare _id: Types.ObjectId;
+  declare id: string;
 
   @Field()
   @Prop({ required: true })
@@ -20,17 +20,15 @@ export class User extends Document {
   @Prop({ required: true })
   password: string;
 
-  @Field()
-  @Prop({
-    required: true,
-    enum: Object.values(UserRoles),
-    default: UserRoles.STUDENT,
-  })
-  role: string;
+  @Field(() => UserRole)
+  @Prop({ required: true, enum: Object.values(UserRole), default: UserRole.STUDENT, type: String })
+  role: UserRole;
 
-  @Field(() => ID, { nullable: true })
-  @Prop({ type: Types.ObjectId, ref: 'User', required: false })
-  studentId?: Types.ObjectId;
+  @Field()
+  createdAt: Date;
+
+  @Field()
+  updatedAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

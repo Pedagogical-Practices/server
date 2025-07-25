@@ -5,12 +5,14 @@ import { FormResolver } from './form.resolver';
 import { Form, FormSchema } from './schemas/form.schema';
 import { AuthModule } from '../auth/auth.module';
 
+import { GraphQLJSON } from 'graphql-type-json';
+
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Form.name, schema: FormSchema }]),
     AuthModule,
   ],
   providers: [FormResolver, FormService],
-  exports: [FormService], // <--- Añadido
+  exports: [MongooseModule, FormService],
 })
 export class FormModule {}

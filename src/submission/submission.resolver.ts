@@ -5,10 +5,9 @@ import { CreateSubmissionInput } from './dto/create-submission.input';
 import { UpdateSubmissionInput } from './dto/update-submission.input';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
-import { CurrentUser } from '../auth/current-user.decorator';
 import { RolesGuard } from '../auth/roles.guard';
-import { Roles, UserRoles } from '../auth/roles.decorator';
-import { UserDto } from '../auth/dto/user.dto';
+import { Roles } from '../auth/roles.decorator';
+import { UserRole } from '../common/enums/user-role.enum';
 
 @Resolver(() => Submission)
 @UseGuards(AuthGuard)
@@ -17,45 +16,52 @@ export class SubmissionResolver {
 
   @Mutation(() => Submission)
   @UseGuards(RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR, UserRoles.TEACHER_DIRECTIVE, UserRoles.STUDENT)
-  async submitProtocol(
-    @Args('createSubmissionInput') createSubmissionInput: CreateSubmissionInput,
-    @CurrentUser() user: UserDto,
+  @Roles(UserRole.STUDENT)
+  async createSubmission(
+    @Args('input') createSubmissionInput: CreateSubmissionInput,
   ): Promise<Submission> {
-    return this.submissionService.create(createSubmissionInput, user._id);
+    return this.submissionService.create(createSubmissionInput);
   }
 
   @Mutation(() => Submission)
   @UseGuards(RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
+  @Roles(UserRole.ADMIN, UserRole.TEACHER_DIRECTIVE, UserRole.STUDENT)
   async updateSubmission(
-    @Args('updateSubmissionInput') updateSubmissionInput: UpdateSubmissionInput,
-    @CurrentUser() user: UserDto,
-  ): Promise<Submission | null> {
-    return this.submissionService.update(updateSubmissionInput, user);
+    @Args('id') id: string,
+    @Args('input') updateSubmissionInput: UpdateSubmissionInput,
+  ): Promise<Submission> {
+    return this.submissionService.update(id, updateSubmissionInput);
   }
 
   @Mutation(() => Boolean)
   @UseGuards(RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
+  @Roles(UserRole.ADMIN)
   async deleteSubmission(@Args('id') id: string): Promise<boolean> {
     return this.submissionService.delete(id);
   }
 
+  @Mutation(() => Submission)
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.TEACHER_DIRECTIVE)
+  async evaluateSubmission(
+    @Args('id') id: string,
+    @Args('score') score: number,
+    @Args('feedback') feedback: string,
+  ): Promise<Submission> {
+    return this.submissionService.evaluateSubmission(id, score, feedback);
+  }
+
   @Query(() => [Submission])
   @UseGuards(RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR, UserRoles.TEACHER_DIRECTIVE, UserRoles.STUDENT)
-  async submissions(
-    @Args('protocolId') protocolId: string,
-    @CurrentUser() user: UserDto,
-  ): Promise<Submission[]> {
-    return this.submissionService.findByProtocol(protocolId, user);
+  @Roles(UserRole.ADMIN, UserRole.TEACHER_DIRECTIVE, UserRole.STUDENT)
+  async submissions(): Promise<Submission[]> {
+    return this.submissionService.findAll();
   }
 
   @Query(() => Submission)
   @UseGuards(RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR, UserRoles.TEACHER_DIRECTIVE, UserRoles.STUDENT)
-  async submission(@Args('id') id: string, @CurrentUser() user: UserDto): Promise<Submission | null> {
-    return this.submissionService.findOne(id, user);
+  @Roles(UserRole.ADMIN, UserRole.TEACHER_DIRECTIVE, UserRole.STUDENT)
+  async submission(@Args('id') id: string): Promise<Submission | null> {
+    return this.submissionService.findOne(id);
   }
 }

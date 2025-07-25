@@ -7,6 +7,7 @@ import { Submission, SubmissionSchema } from './schemas/submission.schema';
 import { AuthModule } from 'src/auth/auth.module';
 import { GraphQLJSON } from 'graphql-type-json';
 import { PracticeModule } from 'src/practice/practice.module';
+import { ProtocolModule } from '../protocol/protocol.module';
 
 @Module({
   imports: [
@@ -15,11 +16,11 @@ import { PracticeModule } from 'src/practice/practice.module';
     ]),
     AuthModule,
     forwardRef(() => PracticeModule),
+    ProtocolModule,
   ],
   providers: [
     SubmissionResolver,
     SubmissionService,
-    { provide: 'GraphQLJSON', useValue: GraphQLJSON },
   ],
   exports: [SubmissionService],
 })

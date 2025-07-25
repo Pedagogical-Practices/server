@@ -6,6 +6,9 @@ export class CreateFormInput {
   @Field()
   name: string;
 
+  @Field({ nullable: true })
+  description?: string;
+
   @Field(() => [FormFieldInput])
   fields: FormFieldInput[];
 }

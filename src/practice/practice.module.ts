@@ -17,6 +17,6 @@ import { SubmissionModule } from '../submission/submission.module'; // Para inye
     forwardRef(() => SubmissionModule), // Usar forwardRef para romper la dependencia circular
   ],
   providers: [PracticeService, PracticeResolver],
-  exports: [PracticeService], // Exportar el servicio si otros módulos lo necesitan
+  exports: [MongooseModule, PracticeService], // Exportar MongooseModule y el servicio
 })
 export class PracticeModule {}

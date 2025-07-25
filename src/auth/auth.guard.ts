@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { JwtService } from '@nestjs/jwt';
-import { JwtPayload } from './dto/jwt-payload.dto';
+
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -33,7 +33,7 @@ export class AuthGuard implements CanActivate {
     const token = authHeader.replace('Bearer ', '');
 
     try {
-      const payload: JwtPayload = this.jwtService.verify(token);
+      const payload = this.jwtService.verify(token);
       this.logger.log(`Token verified for user: ${payload.email}`);
       
       // Attach user to the appropriate context

@@ -1,13 +1,20 @@
-import { CreateSubmissionInput } from './create-submission.input';
-import { PartialType } from '@nestjs/mapped-types';
-import { Field, ID, InputType } from '@nestjs/graphql';
-import { GraphQLJSONObject } from 'graphql-type-json';
+import { InputType, Field, ID } from '@nestjs/graphql';
+import { GraphQLJSON } from 'graphql-type-json';
 
 @InputType()
-export class UpdateSubmissionInput extends PartialType(CreateSubmissionInput) {
+export class UpdateSubmissionInput {
   @Field(() => ID)
   id: string;
 
-  @Field(() => GraphQLJSONObject, { nullable: true })
-  data?: Record<string, any>;
+  @Field(() => GraphQLJSON, { nullable: true })
+  formData?: any;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  locationData?: any;
+
+  @Field({ nullable: true })
+  score?: number;
+
+  @Field({ nullable: true })
+  feedback?: string;
 }
