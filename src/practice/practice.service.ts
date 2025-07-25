@@ -1,283 +1,133 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-  Inject,
-  forwardRef,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Practice, FilledForm } from './schemas/practice.schema';
+import { Practice } from './schemas/practice.schema';
 import { CreatePracticeInput, UpdatePracticeInput } from './dto/practice.input';
-import { AuthService } from '../auth/auth.service'; // Para buscar estudiantes y asesores
-import { ProtocolService } from '../protocol/protocol.service'; // Para buscar protocolos
-import { FormService } from '../form/form.service'; // Para buscar formularios
-import { SubmissionService } from '../submission/submission.service'; // Para manejar submissions
-import { UserDto } from '../auth/dto/user.dto';
-import { UserRoles } from '../auth/roles.decorator';
+import { UserRole } from '../common/enums/user-role.enum';
+import { User } from '../auth/schemas/user.schema';
 
 @Injectable()
 export class PracticeService {
   constructor(
     @InjectModel(Practice.name) private practiceModel: Model<Practice>,
-    private authService: AuthService,
-    private protocolService: ProtocolService,
-    private formService: FormService,
-    @Inject(forwardRef(() => SubmissionService))
-    private submissionService: SubmissionService,
+    @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
-  async create(
-    createPracticeInput: CreatePracticeInput,
-    createdByUserId: string,
-  ): Promise<Practice> {
-    console.log('PracticeService: create - createdByUserId:', createdByUserId);
-    const { studentId, advisorId, protocolId, institutionName, courseName } =
-      createPracticeInput;
-
-    // Verificar que el estudiante, asesor y protocolo existan
-    const student = await this.authService.findOne(studentId);
-    if (!student) throw new NotFoundException('Estudiante no encontrado');
-
-    const advisor = await this.authService.findOne(advisorId);
-    if (!advisor) throw new NotFoundException('Asesor no encontrado');
-
-    const protocol = await this.protocolService.findOne(protocolId);
-    if (!protocol) throw new NotFoundException('Protocolo no encontrado');
-
-    // Inicializar filledForms con los formularios del protocolo
-    const initialFilledForms: FilledForm[] = protocol.forms.map(
-      (formRef: any) => ({
-        form: formRef._id, // Usar el _id del formulario populado
-        submission: undefined, // Cambiado de null a undefined
-      }),
-    );
-
+  async create(createPracticeInput: CreatePracticeInput): Promise<Practice> {
+    const { protocolIds, ...practiceData } = createPracticeInput;
     const createdPractice = new this.practiceModel({
-      student: new Types.ObjectId(studentId),
-      advisor: new Types.ObjectId(advisorId),
-      protocol: new Types.ObjectId(protocolId),
-      institutionName,
-      courseName,
-      createdBy: new Types.ObjectId(createdByUserId),
-      filledForms: initialFilledForms,
+      ...practiceData,
+      course: new Types.ObjectId(practiceData.courseId),
+      student: new Types.ObjectId(practiceData.studentId),
+      teacher: new Types.ObjectId(practiceData.teacherId),
+      protocols: protocolIds ? protocolIds.map(id => new Types.ObjectId(id)) : [],
     });
-
-    const savedPractice = await createdPractice.save();
-    const populatedPractice = await savedPractice.populate([
-      { path: 'student' },
-      { path: 'advisor' },
-      { path: 'protocol', populate: { path: 'forms' } }, // Popula forms dentro de protocol
-      { path: 'filledForms.form' }, // Popula el objeto Form dentro de filledForms
-      { path: 'createdBy' }, // Asegurarse de popular createdBy también
-    ]);
-    return populatedPractice;
+    return createdPractice.save();
   }
 
   async findAll(): Promise<Practice[]> {
     return this.practiceModel
       .find()
+      .populate('course')
       .populate('student')
-      .populate('advisor')
-      .populate({ path: 'protocol', populate: { path: 'forms' } })
-      .populate('filledForms.form')
-      .populate('createdBy')
+      .populate('teacher')
+      .populate('protocols')
+      .populate('submissions')
       .exec();
   }
 
-  async findForUser(user: UserDto): Promise<Practice[]> {
-    let query: any = {};
+  async findOne(id: string): Promise<Practice> {
+    const practice = await this.practiceModel
+      .findById(id)
+      .populate('course')
+      .populate('student')
+      .populate('teacher')
+      .populate('protocols')
+      .populate('submissions')
+      .exec();
 
-    if (user.role === UserRoles.STUDENT) {
-      query = { student: new Types.ObjectId(user._id) };
-    } else if (user.role === UserRoles.TEACHER_DIRECTIVE) {
-      query = { advisor: new Types.ObjectId(user._id) };
-    } else if (user.role === UserRoles.FAMILY && user.studentId) {
-      query = { student: new Types.ObjectId(user.studentId) };
+    if (!practice) {
+      throw new NotFoundException(`Practice #${id} not found`);
+    }
+    return practice;
+  }
+
+  async findMyPractices(userId: string): Promise<Practice[]> {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    let query: any = {};
+    if (user.role === UserRole.STUDENT) {
+      query = { student: new Types.ObjectId(userId) };
+    } else if (user.role === UserRole.TEACHER_DIRECTIVE) {
+      query = { teacher: new Types.ObjectId(userId) };
     } else {
-      return []; // Return empty for other roles or family without studentId
+      return [];
     }
 
     return this.practiceModel
       .find(query)
+      .populate('course')
       .populate('student')
-      .populate('advisor')
-      .populate({ path: 'protocol', populate: { path: 'forms' } })
-      .populate('filledForms.form')
-      .populate('createdBy')
+      .populate('teacher')
+      .populate('protocols')
+      .populate('submissions')
       .exec();
   }
 
-  async findOne(id: string, user: UserDto): Promise<Practice> {
-    const practice = await this.practiceModel
-      .findById(id)
+  async findPracticesByTeacher(teacherId: string): Promise<Practice[]> {
+    return this.practiceModel
+      .find({ teacher: new Types.ObjectId(teacherId) })
+      .populate('course')
       .populate('student')
-      .populate('advisor')
-      .populate({ path: 'protocol', populate: { path: 'forms' } })
-      .populate('filledForms.form')
-      .populate('filledForms.submission')
-      .populate('createdBy')
+      .populate('teacher')
+      .populate('protocols')
+      .populate('submissions')
       .exec();
-
-    console.log(
-      'PracticeService: findOne - practice after population:',
-      JSON.stringify(practice, null, 2),
-    );
-
-    if (!practice) {
-      throw new NotFoundException(`Práctica #${id} no encontrada`);
-    }
-
-    // Permitir acceso si el usuario es ADMIN o COORDINATOR
-    if (user.role === UserRoles.ADMIN || user.role === UserRoles.COORDINATOR) {
-      return practice;
-    }
-
-    // Permitir acceso si el usuario es el estudiante de la práctica
-    if (
-      user.role === UserRoles.STUDENT &&
-      practice.student._id.toString() === user._id
-    ) {
-      return practice;
-    }
-
-    // Permitir acceso si el usuario es el asesor de la práctica
-    if (
-      user.role === UserRoles.TEACHER_DIRECTIVE &&
-      practice.advisor._id.toString() === user._id
-    ) {
-      return practice;
-    }
-
-    // Permitir acceso si el usuario es un familiar y está vinculado al estudiante de la práctica
-    // (Asumiendo que user.studentId está populado y es el ID del estudiante)
-    if (
-      user.role === UserRoles.FAMILY &&
-      user.studentId &&
-      practice.student._id.toString() === user.studentId
-    ) {
-      return practice;
-    }
-
-    // Si ninguna de las condiciones anteriores se cumple, denegar el acceso
-    throw new UnauthorizedException('No autorizado para ver esta práctica');
   }
 
-  async update(
-    updatePracticeInput: UpdatePracticeInput,
-    userId: string, // Usuario que realiza la actualización
-  ): Promise<Practice> {
-    const { id, studentId, advisorId, protocolId, ...updateData } =
-      updatePracticeInput;
-
-    const practice = await this.practiceModel.findById(id).exec();
-    if (!practice) {
-      throw new NotFoundException(`Práctica #${id} no encontrada`);
-    }
-
-    // Opcional: Verificar permisos (ej. solo el creador o un admin puede actualizar)
-    // if (practice.createdBy.toString() !== userId && !user.isAdmin) {
-    //   throw new UnauthorizedException('No autorizado para actualizar esta práctica');
-    // }
-
-    // Actualizar referencias si se proporcionan nuevos IDs
-    if (studentId) {
-      const student = await this.authService.findOne(studentId);
-      if (!student) throw new NotFoundException('Estudiante no encontrado');
-      (updateData as any).student = studentId;
-    }
-    if (advisorId) {
-      const advisor = await this.authService.findOne(advisorId);
-      if (!advisor) throw new NotFoundException('Asesor no encontrado');
-      (updateData as any).advisor = advisorId;
-    }
-    if (protocolId) {
-      const protocol = await this.protocolService.findOne(protocolId);
-      if (!protocol) throw new NotFoundException('Protocolo no encontrado');
-      (updateData as any).protocol = protocolId;
-    }
-
-    const updatedPractice = await this.practiceModel
-      .findByIdAndUpdate(id, updateData, { new: true })
+  async findPracticesByStudent(studentId: string): Promise<Practice[]> {
+    return this.practiceModel
+      .find({ student: new Types.ObjectId(studentId) })
+      .populate('course')
       .populate('student')
-      .populate('advisor')
-      .populate({ path: 'protocol', populate: { path: 'forms' } }) // Popula forms dentro de protocol
-      .populate('filledForms.form') // Popula el objeto Form dentro de filledForms
-      .populate('createdBy') // Asegurarse de popular createdBy también
+      .populate('teacher')
+      .populate('protocols')
+      .populate('submissions')
       .exec();
-
-    if (!updatedPractice) {
-      throw new NotFoundException(
-        `Práctica #${id} no encontrada después de actualizar`,
-      );
-    }
-    return updatedPractice;
   }
 
-  async remove(id: string): Promise<boolean> {
-    const result = await this.practiceModel.findByIdAndDelete(id).exec();
-    return !!result;
-  }
+  async update(id: string, updatePracticeInput: UpdatePracticeInput): Promise<Practice> {
+    const { protocolIds, ...updateData } = updatePracticeInput;
+    const practice = await this.practiceModel.findById(id);
 
-  // Método para registrar una submission en un formulario de una práctica
-  async registerFormSubmission(
-    practiceId: string,
-    formId: string,
-    submissionId: string,
-  ): Promise<Practice> {
-    const practice = await this.practiceModel.findById(practiceId).exec();
     if (!practice) {
-      throw new NotFoundException(`Práctica #${practiceId} no encontrada`);
+      throw new NotFoundException(`Practice with ID ${id} not found`);
     }
 
-    const filledForm = practice.filledForms.find(
-      (ff) => ff.form.toString() === formId,
-    );
-
-    if (!filledForm) {
-      throw new NotFoundException(
-        `Formulario #${formId} no encontrado en la práctica #${practiceId}`,
-      );
+    if (updateData.courseId) {
+      practice.course = new Types.ObjectId(updateData.courseId);
+    }
+    if (updateData.studentId) {
+      practice.student = new Types.ObjectId(updateData.studentId);
+    }
+    if (updateData.teacherId) {
+      practice.teacher = new Types.ObjectId(updateData.teacherId);
+    }
+    if (updateData.status) {
+      practice.status = updateData.status;
+    }
+    if (protocolIds) {
+      practice.protocols = protocolIds.map(id => new Types.ObjectId(id));
     }
 
-    if (filledForm.submission) {
-      throw new Error(
-        `El formulario #${formId} en la práctica #${practiceId} ya tiene una submission registrada.`,
-      );
-    }
-
-    console.log(
-      'PracticeService: registerFormSubmission - Before setting submission, filledForm:',
-      JSON.stringify(filledForm, null, 2),
-    );
-    filledForm.submission = new Types.ObjectId(submissionId);
-    console.log(
-      'PracticeService: registerFormSubmission - After setting submission, filledForm:',
-      JSON.stringify(filledForm, null, 2),
-    );
-
-    await practice.save();
-    console.log(
-      'PracticeService: registerFormSubmission - Practice after save:',
-      JSON.stringify(practice, null, 2),
-    );
-
-    const populatedPractice = await practice.populate([
-      { path: 'student' },
-      { path: 'advisor' },
-      { path: 'protocol', populate: { path: 'forms' } }, // Popula forms dentro de protocol
-      { path: 'filledForms.form' }, // Popula el objeto Form dentro de filledForms
-      { path: 'filledForms.submission' },
-      { path: 'createdBy' }, // Asegurarse de popular createdBy también
-    ]);
-    console.log(
-      'PracticeService: registerFormSubmission - Populated practice before return:',
-      JSON.stringify(populatedPractice, null, 2),
-    );
-    return populatedPractice;
+    return practice.save();
   }
 
-  async countPractices(): Promise<number> {
-    return this.practiceModel.countDocuments().exec();
+  async delete(id: string): Promise<boolean> {
+    const result = await this.practiceModel.deleteOne({ _id: id }).exec();
+    return result.deletedCount > 0;
   }
 }

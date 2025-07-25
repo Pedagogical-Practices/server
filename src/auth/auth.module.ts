@@ -21,6 +21,6 @@ import { AuthGuard } from './auth.guard';
     ConfigModule,
   ],
   providers: [AuthService, AuthResolver, AuthGuard],
-  exports: [JwtModule, AuthService],
+  exports: [JwtModule, AuthService, MongooseModule],
 })
 export class AuthModule {}

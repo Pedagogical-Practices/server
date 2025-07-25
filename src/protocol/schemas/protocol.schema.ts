@@ -1,44 +1,35 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types, Schema as MongooseSchema } from 'mongoose';
 import { ObjectType, Field, ID } from '@nestjs/graphql';
-import { Form } from '../../form/schemas/form.schema'; // Importar el esquema de Form
-import { AttendanceRecord } from '../../attendance/schemas/attendance.schema'; // Asumiendo que attendance.schema.ts existe y es correcto
+import { Form } from '../../form/schemas/form.schema';
 
 @ObjectType()
 @Schema({ timestamps: true })
 export class Protocol extends Document {
   @Field(() => ID)
-  declare _id: Types.ObjectId;
+  declare id: string;
 
   @Field()
   @Prop({ required: true })
   name: string;
 
   @Field({ nullable: true })
-  @Prop()
-  description?: string;
+  @Prop({ required: false })
+  description: string;
+
+  @Field(() => Form)
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Form', required: true })
+  form: Types.ObjectId | Form;
 
   @Field({ nullable: true })
-  @Prop()
-  module?: string;
-
-  @Field(() => [Form]) // Ahora es un array de Form
-  @Prop({ type: [{ type: MongooseSchema.Types.ObjectId, ref: 'Form' }], default: [] }) // Referencia a múltiples Forms
-  forms: Form[]; // Cambiado de formId a forms
+  @Prop({ required: false })
+  productType: string;
 
   @Field()
-  @Prop({ required: true })
-  createdBy: string;
+  createdAt: Date;
 
   @Field()
-  createdAt: string;
-
-  @Field(() => [AttendanceRecord])
-  @Prop({
-    type: [{ type: Types.ObjectId, ref: 'AttendanceRecord' }],
-    default: [],
-  })
-  attendanceRecords: AttendanceRecord[];
+  updatedAt: Date;
 }
 
 export const ProtocolSchema = SchemaFactory.createForClass(Protocol);

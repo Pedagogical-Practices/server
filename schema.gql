@@ -2,87 +2,54 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type AttendanceRecord {
-  _id: ID!
-  advisorSignature: String!
-  classType: String!
-  createdAt: String!
-  date: String!
-  group: String!
-  hours: Int!
-  observations: String
-  other: String
-  protocolId: String!
-  submittedBy: String!
-  topic: String!
-  tutorSignature: String!
-  week: String!
-}
-
 type AuthPayload {
   token: String!
-  user: UserDto!
+  user: User!
 }
 
 type Course {
-  _id: ID!
-  assignedGroups: [String!]!
-  createdAt: String!
-  createdBy: User!
-  institution: String!
+  createdAt: DateTime!
+  description: String
+  endDate: DateTime!
+  id: ID!
   name: String!
-}
-
-input CreateAttendanceRecordInput {
-  advisorSignature: String!
-  classType: String!
-  date: String!
-  group: String!
-  hours: Int!
-  observations: String
-  other: String
-  protocolId: String!
-  topic: String!
-  tutorSignature: String!
-  week: String!
+  protocols: [Protocol!]
+  startDate: DateTime!
+  updatedAt: DateTime!
 }
 
 input CreateCourseInput {
-  assignedGroups: [String!]!
-  institution: String!
+  description: String
+  endDate: String!
   name: String!
+  protocolIds: [ID!]
+  startDate: String!
 }
 
 input CreateFormInput {
+  description: String
   fields: [FormFieldInput!]!
   name: String!
 }
 
-input CreateInstitutionInput {
-  address: String
-  name: String!
-  phone: String
-}
-
 input CreatePracticeInput {
-  advisorId: ID!
-  courseName: String!
-  dueDate: String
-  institutionName: String!
-  protocolId: ID!
+  courseId: ID!
+  protocolIds: [ID!]
+  status: PracticeStatus
   studentId: ID!
+  teacherId: ID!
 }
 
 input CreateProtocolInput {
   description: String
-  formIds: [ID!] = []
-  module: String
+  formId: ID!
   name: String!
+  productType: String
 }
 
 input CreateSubmissionInput {
-  data: JSON!
-  formId: ID!
+  formData: JSON!
+  locationData: JSON
   practiceId: ID!
   protocolId: ID!
 }
@@ -91,7 +58,7 @@ input CreateUserInput {
   email: String!
   name: String!
   password: String!
-  role: String!
+  role: UserRole!
 }
 
 """
@@ -99,142 +66,40 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type FilledForm {
-  form: ID!
-  submission: ID
-}
-
-type FilledFormDto {
-  form: Form
-  formId: ID!
-  submission: Submission
-  submissionId: ID
-}
-
 type Form {
-  _id: ID!
-  createdAt: String!
-  createdBy: ID!
-  fields: [FormField!]!
-  name: String!
-}
-
-type FormDto {
-  _id: ID!
   createdAt: DateTime!
-  createdBy: UserDto!
-  fields: [FormFieldDto!]!
+  description: String
+  fields: [FormField!]!
+  id: ID!
   name: String!
   updatedAt: DateTime!
 }
 
 type FormField {
-  chapter: String
-  color: String
-  consistencyCondition: String
-  dataSource: String
-  description: String
-  disabled: Boolean
-  errorType: String
-  height: String
-  hint: String
-  inconsistencyMessage: String
-  label: String
-  multiple: Boolean
-  name: String
-  options: [Option!]
-  placeholder: String
-  question: String
-  questionNumber: String
-  readonly: Boolean
-  required: Boolean
-  requirementLevel: String
-  rules: [String!]
-  specificType: String
+  defaultValue: String
+  id: ID!
+  label: String!
+  name: String!
+  options: JSON
+  rules: JSON
   type: String!
-  value: String
-  variableName: String
-}
-
-type FormFieldDto {
-  chapter: String
-  color: String
-  consistencyCondition: String
-  dataSource: String
-  description: String
-  disabled: Boolean
-  errorType: String
-  height: String
-  hint: String
-  inconsistencyMessage: String
-  label: String
-  multiple: Boolean
-  name: String
-  options: [OptionDto!]
-  placeholder: String
-  question: String
-  questionNumber: String
-  readonly: Boolean
-  required: Boolean!
-  requirementLevel: String
-  rules: [String!]
-  specificType: String
-  type: String!
-  value: String
-  variableName: String
 }
 
 input FormFieldInput {
-  chapter: String
-  color: String
-  consistencyCondition: String
-  dataSource: String
-  description: String
-  disabled: Boolean
-  errorType: String
-  height: String
-  hint: String
-  inconsistencyMessage: String
-  label: String
-  multiple: Boolean
-  name: String
-  options: [OptionInput!]
-  placeholder: String
-  question: String
-  questionNumber: String
-  readonly: Boolean
-  required: Boolean
-  requirementLevel: String
-  rules: [String!]
-  specificType: String
-  type: String!
-  value: String
-  variableName: String
-}
-
-input GenerateAttendancePDFInput {
-  advisorName: String!
-  assignedGroups: String!
-  institution: String!
-  records: [CreateAttendanceRecordInput!]!
-  teacherName: String!
-  tutorName: String!
-}
-
-type ImportantDate {
-  date: String!
-  entityType: String!
-  id: ID!
-  relatedId: ID!
-  semaphoreStatus: String!
-  title: String!
-}
-
-type Institution {
-  _id: ID!
-  address: String
+  label: String!
   name: String!
-  phone: String
+  options: JSON
+  rules: [String!]
+  type: FormFieldType!
+}
+
+enum FormFieldType {
+  DATE
+  FILE_UPLOAD
+  MAP
+  SELECT
+  TEXT
+  TEXTAREA
 }
 
 """
@@ -242,181 +107,150 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 """
 scalar JSON
 
-"""
-The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
-"""
-scalar JSONObject
-
 type Mutation {
-  createAttendanceRecord(createAttendanceRecordInput: CreateAttendanceRecordInput!): AttendanceRecord!
-  createCourse(createCourseInput: CreateCourseInput!): Course!
-  createForm(createFormInput: CreateFormInput!): FormDto!
-  createInstitution(createInstitutionInput: CreateInstitutionInput!): Institution!
-  createPractice(createPracticeInput: CreatePracticeInput!): PracticeDto!
-  createProtocol(createProtocolInput: CreateProtocolInput!): Protocol!
-  createUser(createUserInput: CreateUserInput!): AuthPayload!
+  createCourse(input: CreateCourseInput!): Course!
+  createForm(input: CreateFormInput!): Form!
+  createPractice(input: CreatePracticeInput!): Practice!
+  createProtocol(input: CreateProtocolInput!): Protocol!
+  createSubmission(input: CreateSubmissionInput!): Submission!
+  createUser(input: CreateUserInput!): User!
   deleteCourse(id: String!): Boolean!
-  deleteInstitution(id: String!): Boolean!
+  deleteForm(id: String!): Boolean!
+  deletePractice(id: String!): Boolean!
   deleteProtocol(id: String!): Boolean!
   deleteSubmission(id: String!): Boolean!
   deleteUser(id: String!): Boolean!
-  generateAttendancePDF(input: GenerateAttendancePDFInput!): String!
+  evaluateSubmission(feedback: String!, id: String!, score: Float!): Submission!
   login(email: String!, password: String!): AuthPayload!
-  registerFormSubmission(formId: String!, practiceId: String!, submissionId: String!): PracticeDto!
-  removeForm(id: String!): FormDto!
-  removePractice(id: String!): Boolean!
-  submitProtocol(createSubmissionInput: CreateSubmissionInput!): Submission!
-  updateCourse(updateCourseInput: UpdateCourseInput!): Course!
-  updateForm(updateFormInput: UpdateFormInput!): FormDto!
-  updateInstitution(updateInstitutionInput: UpdateInstitutionInput!): Institution!
-  updatePractice(updatePracticeInput: UpdatePracticeInput!): PracticeDto!
-  updateProtocol(updateProtocolInput: UpdateProtocolInput!): Protocol!
-  updateSubmission(updateSubmissionInput: UpdateSubmissionInput!): Submission!
-  updateUser(updateUserInput: UpdateUserInput!): UserDto!
-  updateUserByAdmin(id: String!, updateUserInput: UpdateUserInput!): UserDto!
+  updateCourse(id: String!, input: UpdateCourseInput!): Course!
+  updateForm(id: String!, input: UpdateFormInput!): Form!
+  updatePractice(id: String!, input: UpdatePracticeInput!): Practice!
+  updateProtocol(id: String!, input: UpdateProtocolInput!): Protocol!
+  updateSubmission(id: String!, input: UpdateSubmissionInput!): Submission!
+  updateUser(id: String!, input: UpdateUserInput!): User!
 }
 
-type Option {
-  label: String!
-  value: String!
-}
-
-type OptionDto {
-  label: String!
-  value: String!
-}
-
-input OptionInput {
-  label: String!
-  value: String!
-}
-
-type PracticeDto {
-  _id: ID!
-  advisor: UserDto!
-  courseName: String!
-  createdAt: String!
-  createdBy: UserDto!
-  filledForms: [FilledFormDto!]!
-  institutionName: String!
-  protocol: Protocol
-  status: String!
-  student: UserDto!
+type Practice {
+  course: Course!
+  createdAt: DateTime!
+  id: ID!
+  protocols: [Protocol!]
+  status: PracticeStatus!
+  student: User!
+  submissions: [Submission!]
+  teacher: User!
+  updatedAt: DateTime!
 }
 
 enum PracticeStatus {
-  ASSIGNED
+  ARCHIVED
   COMPLETED
   IN_PROGRESS
-  REVIEWED
+  PENDING
 }
 
 type Protocol {
-  _id: ID!
-  attendanceRecords: [AttendanceRecord!]!
-  createdAt: String!
-  createdBy: String!
+  createdAt: DateTime!
   description: String
-  forms: [Form!]!
-  module: String
+  form: Form!
+  id: ID!
   name: String!
+  productType: String
+  updatedAt: DateTime!
 }
 
 type Query {
-  attendanceRecords(protocolId: String!): [AttendanceRecord!]!
   course(id: String!): Course!
   courses: [Course!]!
-  form(id: String!): FormDto!
-  forms: [FormDto!]!
-  formsCount: Int!
-  importantDates: [ImportantDate!]!
-  institution(id: String!): Institution!
-  institutions(search: String): [Institution!]!
-  me: UserDto
-  myPractices: [PracticeDto!]!
-  practice(id: String!): PracticeDto!
-  practices: [PracticeDto!]!
-  practicesCount: Int!
+  form(id: String!): Form!
+  forms: [Form!]!
+  me: User
+  myPractices: [Practice!]!
+  practice(id: String!): Practice!
+  practices: [Practice!]!
+  practicesByStudent(studentId: String!): [Practice!]!
+  practicesByTeacher(teacherId: String!): [Practice!]!
   protocol(id: String!): Protocol!
   protocols: [Protocol!]!
-  protocolsCount: Int!
   submission(id: String!): Submission!
-  submissions(protocolId: String!): [Submission!]!
-  user(id: String!): UserDto
-  users: [UserDto!]!
-  usersCount: Int!
+  submissions: [Submission!]!
+  user(id: String!): User
+  users: [User!]!
 }
 
 type Submission {
-  _id: ID!
-  createdAt: String!
-  data: JSON!
-  formId: ID!
-  practiceId: ID
-  protocolId: ID!
-  submittedBy: String!
+  createdAt: DateTime!
+  feedback: String
+  formData: JSON!
+  id: ID!
+  locationData: JSON
+  practice: Practice!
+  protocol: Protocol!
+  score: Float
+  updatedAt: DateTime!
 }
 
 input UpdateCourseInput {
-  id: ID!
+  description: String
+  endDate: String
+  id: ID
+  name: String
+  protocolIds: [ID!]
+  startDate: String
 }
 
 input UpdateFormInput {
+  description: String
   fields: [FormFieldInput!]
-  id: String!
+  id: String
   name: String
-}
-
-input UpdateInstitutionInput {
-  address: String
-  id: ID!
-  name: String
-  phone: String
 }
 
 input UpdatePracticeInput {
-  advisorId: ID
-  courseName: String
-  dueDate: String
+  courseId: ID
   id: ID!
-  institutionName: String
-  protocolId: ID
+  protocolIds: [ID!]
   status: PracticeStatus
   studentId: ID
+  teacherId: ID
 }
 
 input UpdateProtocolInput {
   description: String
-  formIds: [ID!]
+  formId: ID
   id: ID!
-  module: String
   name: String
+  productType: String
 }
 
 input UpdateSubmissionInput {
-  data: JSONObject
+  feedback: String
+  formData: JSON
   id: ID!
+  locationData: JSON
+  score: Float
 }
 
 input UpdateUserInput {
-  _id: ID!
   email: String
+  id: ID
   name: String
   password: String
+  role: UserRole
 }
 
 type User {
-  _id: ID!
+  createdAt: DateTime!
   email: String!
+  id: ID!
   name: String!
-  role: String!
-  studentId: ID
+  role: UserRole!
+  updatedAt: DateTime!
 }
 
-type UserDto {
-  _id: ID!
-  email: String!
-  name: String!
-  role: String!
-  studentId: ID
+enum UserRole {
+  ADMIN
+  FAMILY
+  STUDENT
+  TEACHER_DIRECTIVE
 }

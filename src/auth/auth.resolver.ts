@@ -3,15 +3,15 @@ import { AuthService } from './auth.service';
 import { AuthPayload } from './dto/auth-payload.dto';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
-import { UserDto } from './dto/user.dto';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from './auth.guard';
 import { CurrentUser } from './current-user.decorator';
 import { Roles } from './roles.decorator';
 import { RolesGuard } from './roles.guard';
-import { UserRoles } from './roles.decorator';
+import { User } from './schemas/user.schema';
+import { UserRole } from '../common/enums/user-role.enum';
 
-@Resolver(() => UserDto)
+@Resolver(() => User)
 export class AuthResolver {
   constructor(private authService: AuthService) {}
 
@@ -20,75 +20,52 @@ export class AuthResolver {
     @Args('email') email: string,
     @Args('password') password: string,
   ): Promise<AuthPayload> {
-    console.log('auth.resolver.ts: login, email:', email);
     return this.authService.login(email, password);
   }
 
-  @Mutation(() => AuthPayload)
+  @Mutation(() => User)
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoles.ADMIN)
+  @Roles(UserRole.ADMIN)
   async createUser(
-    @Args('createUserInput') createUserInput: CreateUserInput,
-  ): Promise<AuthPayload> {
-    console.log('auth.resolver.ts: createUser, input:', createUserInput);
-    return this.authService.register(createUserInput);
+    @Args('input') createUserInput: CreateUserInput,
+  ): Promise<User> {
+    return this.authService.createUser(createUserInput);
   }
 
-  @Mutation(() => UserDto)
-  @UseGuards(AuthGuard)
+  @Mutation(() => User)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   async updateUser(
-    @Args('updateUserInput') updateUserInput: UpdateUserInput,
-    @CurrentUser() user: any,
-  ): Promise<UserDto> {
-    console.log('auth.resolver.ts: updateUser, user.sub:', user.sub);
-    // Permite al usuario actualizar su propio perfil
-    return this.authService.updateProfile(user.sub, updateUserInput);
-  }
-
-  @Mutation(() => UserDto)
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoles.ADMIN)
-  async updateUserByAdmin(
     @Args('id') id: string,
-    @Args('updateUserInput') updateUserInput: UpdateUserInput,
-  ): Promise<UserDto> {
-    return this.authService.updateUserById(id, updateUserInput);
+    @Args('input') updateUserInput: UpdateUserInput,
+  ): Promise<User> {
+    return this.authService.updateUser(id, updateUserInput);
   }
 
-  @Query(() => UserDto, { nullable: true })
+  @Query(() => User, { nullable: true })
   @UseGuards(AuthGuard)
-  async me(@CurrentUser() user: any): Promise<UserDto | null> {
-    console.log('auth.resolver.ts: me query, user._id:', user._id);
-    const userData = await this.authService.findOne(user._id);
-    console.log('auth.resolver.ts: me query, userData:', userData);
-    return userData;
+  async me(@CurrentUser() user: any): Promise<User | null> {
+    return this.authService.findOne(user.id);
   }
 
-  @Query(() => [UserDto])
+  @Query(() => [User])
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR, UserRoles.TEACHER_DIRECTIVE)
-  async users(): Promise<UserDto[]> {
+  @Roles(UserRole.ADMIN, UserRole.TEACHER_DIRECTIVE)
+  async users(): Promise<User[]> {
     return this.authService.findAll();
   }
 
-  @Query(() => UserDto, { nullable: true })
+  @Query(() => User, { nullable: true })
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR, UserRoles.TEACHER_DIRECTIVE)
-  async user(@Args('id') id: string): Promise<UserDto | null> {
+  @Roles(UserRole.ADMIN, UserRole.TEACHER_DIRECTIVE)
+  async user(@Args('id') id: string): Promise<User | null> {
     return this.authService.findOne(id);
   }
 
   @Mutation(() => Boolean)
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoles.ADMIN)
+  @Roles(UserRole.ADMIN)
   async deleteUser(@Args('id') id: string): Promise<boolean> {
     return this.authService.deleteUser(id);
-  }
-
-  @Query(() => Int)
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRoles.ADMIN, UserRoles.COORDINATOR)
-  async usersCount(): Promise<number> {
-    return this.authService.countUsers();
   }
 }

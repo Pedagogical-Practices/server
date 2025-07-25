@@ -11,5 +11,6 @@ import { AuthModule } from 'src/auth/auth.module';
     AuthModule,
   ],
   providers: [CourseResolver, CourseService],
+  exports: [MongooseModule, CourseService],
 })
 export class CourseModule {}
