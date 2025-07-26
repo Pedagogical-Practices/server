@@ -32,6 +32,13 @@ input CreateFormInput {
   name: String!
 }
 
+input CreateInstitutionInput {
+  address: String
+  email: String
+  name: String!
+  phone: String
+}
+
 input CreatePracticeInput {
   courseId: ID!
   protocolIds: [ID!]
@@ -104,6 +111,16 @@ enum FormFieldType {
   TEXTAREA
 }
 
+type Institution {
+  address: String
+  createdAt: DateTime!
+  email: String
+  id: ID!
+  name: String!
+  phone: String
+  updatedAt: DateTime!
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -112,6 +129,7 @@ scalar JSON
 type Mutation {
   createCourse(input: CreateCourseInput!): Course!
   createForm(input: CreateFormInput!): Form!
+  createInstitution(createInstitutionInput: CreateInstitutionInput!): Institution!
   createPractice(input: CreatePracticeInput!): Practice!
   createProtocol(input: CreateProtocolInput!): Protocol!
   createSubmission(input: CreateSubmissionInput!): Submission!
@@ -124,8 +142,10 @@ type Mutation {
   deleteUser(id: String!): Boolean!
   evaluateSubmission(feedback: String!, id: String!, score: Float!): Submission!
   login(email: String!, password: String!): AuthPayload!
+  removeInstitution(id: ID!): Boolean!
   updateCourse(id: String!, input: UpdateCourseInput!): Course!
   updateForm(id: String!, input: UpdateFormInput!): Form!
+  updateInstitution(updateInstitutionInput: UpdateInstitutionInput!): Institution
   updatePractice(id: String!, input: UpdatePracticeInput!): Practice!
   updateProtocol(id: String!, input: UpdateProtocolInput!): Protocol!
   updateSubmission(id: String!, input: UpdateSubmissionInput!): Submission!
@@ -166,6 +186,8 @@ type Query {
   courses: [Course!]!
   form(id: String!): Form!
   forms: [Form!]!
+  institution(id: ID!): Institution
+  institutions: [Institution!]!
   me: User
   myPractices: [Practice!]!
   practice(id: String!): Practice!
@@ -206,6 +228,14 @@ input UpdateFormInput {
   fields: [FormFieldInput!]
   id: String
   name: String
+}
+
+input UpdateInstitutionInput {
+  address: String
+  email: String
+  id: ID!
+  name: String
+  phone: String
 }
 
 input UpdatePracticeInput {

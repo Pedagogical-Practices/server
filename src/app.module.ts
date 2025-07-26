@@ -12,6 +12,7 @@ import { CourseModule } from './course/course.module';
 import { ProtocolModule } from './protocol/protocol.module';
 import { SubmissionModule } from './submission/submission.module';
 import { PracticeModule } from './practice/practice.module';
+import { InstitutionModule } from './institution/institution.module';
 
 import { GraphQLJSON } from 'graphql-type-json';
 
@@ -42,6 +43,7 @@ import { GraphQLJSON } from 'graphql-type-json';
     ProtocolModule,
     SubmissionModule,
     PracticeModule,
+    InstitutionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
