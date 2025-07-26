@@ -94,7 +94,9 @@ input FormFieldInput {
 }
 
 enum FormFieldType {
+  CHECKBOX
   DATE
+  DATE_PICKER
   FILE_UPLOAD
   MAP
   SELECT

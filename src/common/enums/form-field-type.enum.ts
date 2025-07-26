@@ -7,6 +7,8 @@ export enum FormFieldType {
   DATE = 'DATE',
   MAP = 'MAP',
   FILE_UPLOAD = 'FILE_UPLOAD',
+  CHECKBOX = 'CHECKBOX',
+  DATE_PICKER = 'DATE_PICKER',
 }
 
 registerEnumType(FormFieldType, {
