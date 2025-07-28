@@ -83,32 +83,77 @@ type Form {
 }
 
 type FormField {
+  chapter: String
+  consistencyCondition: String
+  dataSource: String
   defaultValue: String
-  id: ID!
+  description: String
+  disabled: Boolean
+  errorType: String
+  height: String
+  hint: String
+  id: ID
+  inconsistencyMessage: String
   label: String!
+  multiple: Boolean
   name: String!
   options: JSON
-  rules: JSON
+  placeholder: String
+  question: String
+  questionNumber: String
+  readonly: Boolean
+  required: Boolean
+  rules: [String!]
+  specificType: String
   type: String!
+  value: String
+  variableName: String
 }
 
 input FormFieldInput {
+  chapter: String
+  color: String
+  consistencyCondition: String
+  dataSource: String
+  defaultValue: String
+  description: String
+  disabled: Boolean
+  errorType: String
+  height: String
+  hint: String
+  inconsistencyMessage: String
   label: String!
+  multiple: Boolean
   name: String!
   options: JSON
+  placeholder: String
+  question: String
+  questionNumber: String
+  readonly: Boolean
+  required: Boolean
   rules: [String!]
+  specificType: String
   type: FormFieldType!
+  value: JSON
+  variableName: String
 }
 
 enum FormFieldType {
+  AUTOCOMPLETE
+  BUTTON
   CHECKBOX
   DATE
   DATE_PICKER
+  EMAIL
   FILE_UPLOAD
   MAP
+  NUMBER
+  PASSWORD
+  RADIO_GROUP
   SELECT
   TEXT
   TEXTAREA
+  TIME_PICKER
 }
 
 type Institution {
