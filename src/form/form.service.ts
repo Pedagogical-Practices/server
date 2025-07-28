@@ -14,6 +14,11 @@ export class FormService {
     return createdForm.save();
   }
 
+  async createMany(createFormInputs: CreateFormInput[]): Promise<Form[]> {
+    const createdForms = await this.formModel.insertMany(createFormInputs);
+    return createdForms as unknown as Form[];
+  }
+
   async findAll(): Promise<Form[]> {
     return this.formModel.find().exec();
   }

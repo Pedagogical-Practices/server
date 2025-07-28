@@ -1,21 +1,81 @@
-import { InputType, Field } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
 import { FormFieldType } from '../../common/enums/form-field-type.enum';
 import { GraphQLJSON } from 'graphql-type-json';
 
 @InputType()
 export class FormFieldInput {
   @Field()
-  name: string;
+  label: string;
 
   @Field()
-  label: string;
+  name: string;
 
   @Field(() => FormFieldType)
   type: FormFieldType;
 
   @Field(() => GraphQLJSON, { nullable: true })
-  options?: any;
+  options?: Record<string, any>;
 
   @Field(() => [String], { nullable: true })
   rules?: string[];
+
+  @Field({ nullable: true })
+  defaultValue?: string;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  value?: typeof GraphQLJSON;
+
+  @Field({ nullable: true })
+  variableName?: string;
+
+  @Field({ nullable: true })
+  hint?: string;
+
+  @Field({ nullable: true })
+  required?: boolean;
+
+  @Field({ nullable: true })
+  chapter?: string;
+
+  @Field({ nullable: true })
+  question?: string;
+
+  @Field({ nullable: true })
+  questionNumber?: string;
+
+  @Field({ nullable: true })
+  consistencyCondition?: string;
+
+  @Field({ nullable: true })
+  inconsistencyMessage?: string;
+
+  @Field({ nullable: true })
+  errorType?: string;
+
+  @Field({ nullable: true })
+  description?: string;
+
+  @Field({ nullable: true })
+  disabled?: boolean;
+
+  @Field({ nullable: true })
+  readonly?: boolean;
+
+  @Field({ nullable: true })
+  dataSource?: string;
+
+  @Field({ nullable: true })
+  placeholder?: string;
+
+  @Field({ nullable: true })
+  specificType?: string;
+
+  @Field({ nullable: true })
+  height?: string;
+
+  @Field({ nullable: true })
+  multiple?: boolean;
+
+  @Field({ nullable: true })
+  color?: string;
 }

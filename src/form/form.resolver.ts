@@ -22,6 +22,16 @@ export class FormResolver {
     return this.formService.create(createFormInput);
   }
 
+  @Mutation(() => [Form])
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async createManyForms(
+    @Args('createFormInputs', { type: () => [CreateFormInput] })
+    createFormInputs: CreateFormInput[],
+  ): Promise<Form[]> {
+    return this.formService.createMany(createFormInputs);
+  }
+
   @Query(() => [Form])
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
