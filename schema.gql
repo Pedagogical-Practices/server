@@ -32,6 +32,13 @@ input CreateFormInput {
   name: String!
 }
 
+input CreateInstitutionInput {
+  address: String
+  email: String
+  name: String!
+  phone: String
+}
+
 input CreatePracticeInput {
   courseId: ID!
   protocolIds: [ID!]
@@ -76,30 +83,87 @@ type Form {
 }
 
 type FormField {
+  chapter: String
+  consistencyCondition: String
+  dataSource: String
   defaultValue: String
-  id: ID!
+  description: String
+  disabled: Boolean
+  errorType: String
+  height: String
+  hint: String
+  id: ID
+  inconsistencyMessage: String
   label: String!
+  multiple: Boolean
   name: String!
   options: JSON
-  rules: JSON
+  placeholder: String
+  question: String
+  questionNumber: String
+  readonly: Boolean
+  required: Boolean
+  rules: [String!]
+  specificType: String
   type: String!
+  value: String
+  variableName: String
 }
 
 input FormFieldInput {
+  chapter: String
+  color: String
+  consistencyCondition: String
+  dataSource: String
+  defaultValue: String
+  description: String
+  disabled: Boolean
+  errorType: String
+  height: String
+  hint: String
+  inconsistencyMessage: String
   label: String!
+  multiple: Boolean
   name: String!
   options: JSON
+  placeholder: String
+  question: String
+  questionNumber: String
+  readonly: Boolean
+  required: Boolean
   rules: [String!]
+  specificType: String
   type: FormFieldType!
+  value: JSON
+  variableName: String
 }
 
 enum FormFieldType {
+  AUTOCOMPLETE
+  BUTTON
+  CHECKBOX
   DATE
+  DATE_PICKER
+  EMAIL
   FILE_UPLOAD
   MAP
+  NUMBER
+  PASSWORD
+  RADIO_GROUP
   SELECT
   TEXT
   TEXTAREA
+  TIME_PICKER
+}
+
+type Institution {
+  address: String
+  createdAt: DateTime!
+  email: String
+  id: ID!
+  name: String!
+  phone: String
+  updatedAt: DateTime!
 }
 
 """
@@ -110,6 +174,8 @@ scalar JSON
 type Mutation {
   createCourse(input: CreateCourseInput!): Course!
   createForm(input: CreateFormInput!): Form!
+  createInstitution(createInstitutionInput: CreateInstitutionInput!): Institution!
+  createManyForms(createFormInputs: [CreateFormInput!]!): [Form!]!
   createPractice(input: CreatePracticeInput!): Practice!
   createProtocol(input: CreateProtocolInput!): Protocol!
   createSubmission(input: CreateSubmissionInput!): Submission!
@@ -122,8 +188,10 @@ type Mutation {
   deleteUser(id: String!): Boolean!
   evaluateSubmission(feedback: String!, id: String!, score: Float!): Submission!
   login(email: String!, password: String!): AuthPayload!
+  removeInstitution(id: ID!): Boolean!
   updateCourse(id: String!, input: UpdateCourseInput!): Course!
   updateForm(id: String!, input: UpdateFormInput!): Form!
+  updateInstitution(updateInstitutionInput: UpdateInstitutionInput!): Institution
   updatePractice(id: String!, input: UpdatePracticeInput!): Practice!
   updateProtocol(id: String!, input: UpdateProtocolInput!): Protocol!
   updateSubmission(id: String!, input: UpdateSubmissionInput!): Submission!
@@ -164,6 +232,8 @@ type Query {
   courses: [Course!]!
   form(id: String!): Form!
   forms: [Form!]!
+  institution(id: ID!): Institution
+  institutions: [Institution!]!
   me: User
   myPractices: [Practice!]!
   practice(id: String!): Practice!
@@ -204,6 +274,14 @@ input UpdateFormInput {
   fields: [FormFieldInput!]
   id: String
   name: String
+}
+
+input UpdateInstitutionInput {
+  address: String
+  email: String
+  id: ID!
+  name: String
+  phone: String
 }
 
 input UpdatePracticeInput {
