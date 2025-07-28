@@ -129,8 +129,8 @@ scalar JSON
 type Mutation {
   createCourse(input: CreateCourseInput!): Course!
   createForm(input: CreateFormInput!): Form!
-  createManyForms(createFormInputs: [CreateFormInput!]!): [Form!]!
   createInstitution(createInstitutionInput: CreateInstitutionInput!): Institution!
+  createManyForms(createFormInputs: [CreateFormInput!]!): [Form!]!
   createPractice(input: CreatePracticeInput!): Practice!
   createProtocol(input: CreateProtocolInput!): Protocol!
   createSubmission(input: CreateSubmissionInput!): Submission!

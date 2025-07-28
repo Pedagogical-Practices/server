@@ -16,7 +16,7 @@ export class FormService {
 
   async createMany(createFormInputs: CreateFormInput[]): Promise<Form[]> {
     const createdForms = await this.formModel.insertMany(createFormInputs);
-    return createdForms;
+    return createdForms as unknown as Form[];
   }
 
   async findAll(): Promise<Form[]> {
