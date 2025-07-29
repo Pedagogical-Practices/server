@@ -84,6 +84,7 @@ type Form {
 
 type FormField {
   chapter: String
+  color: String
   consistencyCondition: String
   dataSource: String
   defaultValue: String
@@ -106,7 +107,7 @@ type FormField {
   rules: [String!]
   specificType: String
   type: String!
-  value: String
+  value: JSON
   variableName: String
 }
 

@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { Schema as MongooseSchema } from 'mongoose';
 import { GraphQLJSON } from 'graphql-type-json';
 
 @ObjectType()
@@ -33,9 +34,9 @@ export class FormField {
   @Prop({ required: false })
   defaultValue: string;
 
-  @Field({ nullable: true })
-  @Prop({ required: false })
-  value: string;
+  @Field(() => GraphQLJSON, { nullable: true })
+  @Prop({ required: false, type: MongooseSchema.Types.Mixed })
+  value?: any;
 
   @Field({ nullable: true })
   @Prop({ required: false })
@@ -104,6 +105,10 @@ export class FormField {
   @Field({ nullable: true })
   @Prop({ required: false })
   multiple: boolean;
+
+  @Field({ nullable: true })
+  @Prop({ required: false })
+  color?: string;
 }
 
 export const FormFieldSchema = SchemaFactory.createForClass(FormField);
