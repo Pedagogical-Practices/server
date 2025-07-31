@@ -13,7 +13,7 @@ type Course {
   endDate: DateTime!
   id: ID!
   name: String!
-  protocols: [Protocol!]
+  protocols: [Protocol!]!
   startDate: DateTime!
   updatedAt: DateTime!
 }
@@ -243,6 +243,7 @@ type Query {
   practicesByTeacher(teacherId: String!): [Practice!]!
   protocol(id: ID!): Protocol!
   protocols: [Protocol!]!
+  protocolsByIds(ids: [ID!]!): [Protocol!]!
   submission(id: String!): Submission!
   submissions: [Submission!]!
   user(id: String!): User

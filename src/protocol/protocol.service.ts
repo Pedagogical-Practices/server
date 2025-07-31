@@ -55,4 +55,8 @@ export class ProtocolService {
   async findOne(id: string): Promise<Protocol | null> {
     return this.protocolModel.findById(id).exec();
   }
+
+  async findManyByIds(ids: string[]): Promise<Protocol[]> {
+    return this.protocolModel.find({ _id: { $in: ids } }).exec();
+  }
 }

@@ -73,4 +73,11 @@ export class ProtocolResolver {
   async protocol(@Args('id', { type: () => ID }) id: string): Promise<Protocol | null> {
     return this.protocolService.findOne(id);
   }
+
+  @Query(() => [Protocol])
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.TEACHER_DIRECTIVE, UserRole.STUDENT)
+  async protocolsByIds(@Args('ids', { type: () => [ID] }) ids: string[]): Promise<Protocol[]> {
+    return this.protocolService.findManyByIds(ids);
+  }
 }

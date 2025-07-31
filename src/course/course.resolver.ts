@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ResolveField, Parent, ID } from '@nestjs/graphql';
 import { CourseService } from './course.service';
 import { Course } from './schemas/course.schema';
 import { CreateCourseInput } from './dto/create-course.input';
@@ -8,11 +8,25 @@ import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { UserRole } from '../common/enums/user-role.enum';
+import { ProtocolService } from '../protocol/protocol.service';
+import { Protocol } from '../protocol/schemas/protocol.schema';
 
 @Resolver(() => Course)
 @UseGuards(AuthGuard)
 export class CourseResolver {
-  constructor(private courseService: CourseService) {}
+  constructor(
+    private courseService: CourseService,
+    private protocolService: ProtocolService,
+  ) {}
+
+  @ResolveField('protocols', () => [Protocol])
+  async getProtocols(@Parent() course: Course): Promise<Protocol[]> {
+    if (!course.protocols || course.protocols.length === 0) {
+      return [];
+    }
+    const protocolIds = course.protocols.map((protocol) => protocol.toString());
+    return this.protocolService.findManyByIds(protocolIds);
+  }
 
   @Mutation(() => Course)
   @UseGuards(RolesGuard)
