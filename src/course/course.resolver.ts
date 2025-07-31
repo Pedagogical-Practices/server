@@ -24,7 +24,10 @@ export class CourseResolver {
     if (!course.protocols || course.protocols.length === 0) {
       return [];
     }
-    const protocolIds = course.protocols.map((protocol) => protocol.toString());
+    const protocolIds = course.protocols.map((p) => {
+      // Check if it's already a populated object or just an ObjectId
+      return (p instanceof Protocol ? p.id : p).toString();
+    });
     return this.protocolService.findManyByIds(protocolIds);
   }
 
