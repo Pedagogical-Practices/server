@@ -2,10 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Protocol } from './schemas/protocol.schema';
-import {
-  CreateProtocolInput,
-  UpdateProtocolInput,
-} from './dto/protocol.input';
+import { CreateProtocolInput, UpdateProtocolInput } from './dto/protocol.input';
 
 @Injectable()
 export class ProtocolService {
@@ -14,38 +11,36 @@ export class ProtocolService {
   ) {}
 
   async create(createProtocolInput: CreateProtocolInput): Promise<Protocol> {
-    const createdProtocol = new this.protocolModel({
-      name: createProtocolInput.name,
-      description: createProtocolInput.description,
-      form: new Types.ObjectId(createProtocolInput.formId),
-      productType: createProtocolInput.productType,
-    });
-    const savedProtocol = await createdProtocol.save();
-    return savedProtocol.populate('form');
+    const newProtocolData = {
+      ...createProtocolInput,
+      forms: createProtocolInput.formIds.map((id) => new Types.ObjectId(id)),
+    };
+    const createdProtocol = new this.protocolModel(newProtocolData);
+    return createdProtocol.save();
   }
 
-  async update(id: string, updateProtocolInput: UpdateProtocolInput): Promise<Protocol> {
-    const { formId, ...updateData } = updateProtocolInput;
-    const protocol = await this.protocolModel.findById(id);
+  async update(
+    id: string,
+    updateProtocolInput: UpdateProtocolInput,
+  ): Promise<Protocol> {
+    const updatePayload: any = { ...updateProtocolInput };
 
-    if (!protocol) {
+    if (updateProtocolInput.formIds) {
+      updatePayload.forms = updateProtocolInput.formIds.map(
+        (id) => new Types.ObjectId(id),
+      );
+      delete updatePayload.formIds; // Prevent formIds from being added
+    }
+
+    const updatedProtocol = await this.protocolModel
+      .findByIdAndUpdate(id, updatePayload, { new: true })
+      .exec();
+
+    if (!updatedProtocol) {
       throw new NotFoundException(`Protocol with ID ${id} not found`);
     }
 
-    if (formId) {
-      protocol.form = new Types.ObjectId(formId);
-    }
-    if (updateData.name) {
-      protocol.name = updateData.name;
-    }
-    if (updateData.description) {
-      protocol.description = updateData.description;
-    }
-    if (updateData.productType) {
-      protocol.productType = updateData.productType;
-    }
-
-    return protocol.save();
+    return updatedProtocol;
   }
 
   async delete(id: string): Promise<boolean> {
@@ -54,10 +49,10 @@ export class ProtocolService {
   }
 
   async findAll(): Promise<Protocol[]> {
-    return this.protocolModel.find().populate('form').exec();
+    return this.protocolModel.find().exec();
   }
 
   async findOne(id: string): Promise<Protocol | null> {
-    return this.protocolModel.findById(id).populate('form').exec();
+    return this.protocolModel.findById(id).exec();
   }
 }
