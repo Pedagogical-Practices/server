@@ -1,29 +1,29 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types, Schema as MongooseSchema } from 'mongoose';
-import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { Document, Types } from 'mongoose';
+import { Field, ObjectType, ID } from '@nestjs/graphql';
 import { Form } from '../../form/schemas/form.schema';
 
 @ObjectType()
 @Schema({ timestamps: true })
-export class Protocol extends Document {
+export class Protocol {
   @Field(() => ID)
-  declare id: string;
+  id: string;
 
   @Field()
   @Prop({ required: true })
   name: string;
 
   @Field({ nullable: true })
-  @Prop({ required: false })
-  description: string;
+  @Prop()
+  description?: string;
 
-  @Field(() => Form)
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Form', required: true })
-  form: Types.ObjectId | Form;
+  @Field(() => [Form], { name: 'forms' })
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Form' }] })
+  forms: Types.ObjectId[];
 
   @Field({ nullable: true })
-  @Prop({ required: false })
-  productType: string;
+  @Prop()
+  productType?: string;
 
   @Field()
   createdAt: Date;
@@ -32,5 +32,5 @@ export class Protocol extends Document {
   updatedAt: Date;
 }
 
-export const ProtocolSchema = SchemaFactory.createForClass(Protocol);
 export type ProtocolDocument = Protocol & Document;
+export const ProtocolSchema = SchemaFactory.createForClass(Protocol);
