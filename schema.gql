@@ -13,7 +13,7 @@ type Course {
   endDate: DateTime!
   id: ID!
   name: String!
-  protocols: [Protocol!]
+  protocols: [Protocol!]!
   startDate: DateTime!
   updatedAt: DateTime!
 }
@@ -181,33 +181,33 @@ type Mutation {
   createProtocol(input: CreateProtocolInput!): Protocol!
   createSubmission(input: CreateSubmissionInput!): Submission!
   createUser(input: CreateUserInput!): User!
-  deleteCourse(id: String!): Boolean!
-  deleteForm(id: String!): Boolean!
+  deleteCourse(id: ID!): Boolean!
+  deleteForm(id: ID!): Boolean!
   deletePractice(id: String!): Boolean!
   deleteProtocol(id: ID!): Boolean!
   deleteSubmission(id: String!): Boolean!
-  deleteUser(id: String!): Boolean!
+  deleteUser(id: ID!): Boolean!
   evaluateSubmission(feedback: String!, id: String!, score: Float!): Submission!
   login(email: String!, password: String!): AuthPayload!
   removeInstitution(id: ID!): Boolean!
-  updateCourse(id: String!, input: UpdateCourseInput!): Course!
-  updateForm(id: String!, input: UpdateFormInput!): Form!
+  updateCourse(id: ID!, input: UpdateCourseInput!): Course!
+  updateForm(id: ID!, input: UpdateFormInput!): Form!
   updateInstitution(updateInstitutionInput: UpdateInstitutionInput!): Institution
   updatePractice(id: String!, input: UpdatePracticeInput!): Practice!
   updateProtocol(id: ID!, input: UpdateProtocolInput!): Protocol!
   updateSubmission(id: String!, input: UpdateSubmissionInput!): Submission!
-  updateUser(id: String!, input: UpdateUserInput!): User!
+  updateUser(id: ID!, input: UpdateUserInput!): User!
 }
 
 type Practice {
-  course: Course!
+  course: Course
   createdAt: DateTime!
   id: ID!
-  protocols: [Protocol!]
+  protocols: [Protocol!]!
   status: PracticeStatus!
-  student: User!
-  submissions: [Submission!]
-  teacher: User!
+  student: User
+  submissions: [Submission!]!
+  teacher: User
   updatedAt: DateTime!
 }
 
@@ -229,9 +229,9 @@ type Protocol {
 }
 
 type Query {
-  course(id: String!): Course!
+  course(id: ID!): Course!
   courses: [Course!]!
-  form(id: String!): Form!
+  form(id: ID!): Form!
   forms: [Form!]!
   institution(id: ID!): Institution
   institutions: [Institution!]!
@@ -243,9 +243,10 @@ type Query {
   practicesByTeacher(teacherId: String!): [Practice!]!
   protocol(id: ID!): Protocol!
   protocols: [Protocol!]!
+  protocolsByIds(ids: [ID!]!): [Protocol!]!
   submission(id: String!): Submission!
   submissions: [Submission!]!
-  user(id: String!): User
+  user(id: ID!): User
   users: [User!]!
 }
 

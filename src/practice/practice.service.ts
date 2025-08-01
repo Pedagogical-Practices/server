@@ -26,25 +26,11 @@ export class PracticeService {
   }
 
   async findAll(): Promise<Practice[]> {
-    return this.practiceModel
-      .find()
-      .populate('course')
-      .populate('student')
-      .populate('teacher')
-      .populate('protocols')
-      .populate('submissions')
-      .exec();
+    return this.practiceModel.find().exec();
   }
 
   async findOne(id: string): Promise<Practice> {
-    const practice = await this.practiceModel
-      .findById(id)
-      .populate('course')
-      .populate('student')
-      .populate('teacher')
-      .populate('protocols')
-      .populate('submissions')
-      .exec();
+    const practice = await this.practiceModel.findById(id).exec();
 
     if (!practice) {
       throw new NotFoundException(`Practice #${id} not found`);
@@ -67,36 +53,15 @@ export class PracticeService {
       return [];
     }
 
-    return this.practiceModel
-      .find(query)
-      .populate('course')
-      .populate('student')
-      .populate('teacher')
-      .populate('protocols')
-      .populate('submissions')
-      .exec();
+    return this.practiceModel.find(query).exec();
   }
 
   async findPracticesByTeacher(teacherId: string): Promise<Practice[]> {
-    return this.practiceModel
-      .find({ teacher: new Types.ObjectId(teacherId) })
-      .populate('course')
-      .populate('student')
-      .populate('teacher')
-      .populate('protocols')
-      .populate('submissions')
-      .exec();
+    return this.practiceModel.find({ teacher: new Types.ObjectId(teacherId) }).exec();
   }
 
   async findPracticesByStudent(studentId: string): Promise<Practice[]> {
-    return this.practiceModel
-      .find({ student: new Types.ObjectId(studentId) })
-      .populate('course')
-      .populate('student')
-      .populate('teacher')
-      .populate('protocols')
-      .populate('submissions')
-      .exec();
+    return this.practiceModel.find({ student: new Types.ObjectId(studentId) }).exec();
   }
 
   async update(id: string, updatePracticeInput: UpdatePracticeInput): Promise<Practice> {
