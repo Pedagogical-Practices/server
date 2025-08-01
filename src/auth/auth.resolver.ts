@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Int, ID } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { AuthPayload } from './dto/auth-payload.dto';
 import { CreateUserInput } from './dto/create-user.input';
@@ -36,7 +36,7 @@ export class AuthResolver {
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   async updateUser(
-    @Args('id') id: string,
+    @Args('id', { type: () => ID }) id: string,
     @Args('input') updateUserInput: UpdateUserInput,
   ): Promise<User> {
     return this.authService.updateUser(id, updateUserInput);
@@ -58,14 +58,14 @@ export class AuthResolver {
   @Query(() => User, { nullable: true })
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.TEACHER_DIRECTIVE)
-  async user(@Args('id') id: string): Promise<User | null> {
+  async user(@Args('id', { type: () => ID }) id: string): Promise<User | null> {
     return this.authService.findOne(id);
   }
 
   @Mutation(() => Boolean)
-  @UseGuards(AuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
-  async deleteUser(@Args('id') id: string): Promise<boolean> {
+  async deleteUser(@Args('id', { type: () => ID }) id: string): Promise<boolean> {
     return this.authService.deleteUser(id);
   }
 }

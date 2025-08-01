@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { FormService } from './form.service';
 import { Form } from './schemas/form.schema';
 import { CreateFormInput } from './dto/create-form.input';
@@ -42,7 +42,7 @@ export class FormResolver {
   @Query(() => Form)
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.TEACHER_DIRECTIVE, UserRole.STUDENT)
-  async form(@Args('id') id: string): Promise<Form> {
+  async form(@Args('id', { type: () => ID }) id: string): Promise<Form> {
     return this.formService.findOne(id);
   }
 
@@ -50,7 +50,7 @@ export class FormResolver {
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   async updateForm(
-    @Args('id') id: string,
+    @Args('id', { type: () => ID }) id: string,
     @Args('input') updateFormInput: UpdateFormInput,
   ): Promise<Form> {
     return this.formService.update(id, updateFormInput);
@@ -59,7 +59,7 @@ export class FormResolver {
   @Mutation(() => Boolean)
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  async deleteForm(@Args('id') id: string): Promise<boolean> {
+  async deleteForm(@Args('id', { type: () => ID }) id: string): Promise<boolean> {
     return this.formService.delete(id);
   }
 }

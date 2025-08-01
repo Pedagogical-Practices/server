@@ -55,10 +55,10 @@ export class CourseService {
   }
 
   async findAll(): Promise<Course[]> {
-    return this.courseModel.find().populate('protocols').exec();
+    return this.courseModel.find().exec();
   }
 
   async findOne(id: string): Promise<Course | null> {
-    return this.courseModel.findById(id).populate('protocols').exec();
+    return this.courseModel.findById(id).exec();
   }
 }
