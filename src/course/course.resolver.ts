@@ -44,7 +44,7 @@ export class CourseResolver {
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
   async updateCourse(
-    @Args('id') id: string,
+    @Args('id', { type: () => ID }) id: string,
     @Args('input') updateCourseInput: UpdateCourseInput,
   ): Promise<Course> {
     return this.courseService.update(id, updateCourseInput);
@@ -53,7 +53,7 @@ export class CourseResolver {
   @Mutation(() => Boolean)
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
-  async deleteCourse(@Args('id') id: string): Promise<boolean> {
+  async deleteCourse(@Args('id', { type: () => ID }) id: string): Promise<boolean> {
     return this.courseService.delete(id);
   }
 
@@ -67,7 +67,7 @@ export class CourseResolver {
   @Query(() => Course)
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.TEACHER_DIRECTIVE, UserRole.STUDENT)
-  async course(@Args('id') id: string): Promise<Course | null> {
+  async course(@Args('id', { type: () => ID }) id: string): Promise<Course | null> {
     return this.courseService.findOne(id);
   }
 }

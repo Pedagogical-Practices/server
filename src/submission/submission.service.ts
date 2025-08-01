@@ -69,6 +69,10 @@ export class SubmissionService {
       .exec();
   }
 
+  async findManyByIds(ids: string[]): Promise<Submission[]> {
+    return this.submissionModel.find({ _id: { $in: ids } }).exec();
+  }
+
   async evaluateSubmission(id: string, score: number, feedback: string): Promise<Submission> {
     const submission = await this.submissionModel.findById(id);
 

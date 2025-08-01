@@ -7,6 +7,7 @@ import { AuthModule } from '../auth/auth.module'; // Para inyectar UserService
 import { ProtocolModule } from '../protocol/protocol.module'; // Para inyectar ProtocolService
 import { FormModule } from '../form/form.module'; // Para inyectar FormService
 import { SubmissionModule } from '../submission/submission.module'; // Para inyectar SubmissionService
+import { CourseModule } from '../course/course.module'; // NEW IMPORT
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { SubmissionModule } from '../submission/submission.module'; // Para inye
     ProtocolModule, // Importar ProtocolModule para usar ProtocolService
     FormModule, // Importar FormModule para usar FormService
     forwardRef(() => SubmissionModule), // Usar forwardRef para romper la dependencia circular
+    CourseModule, // NEW ADDITION
   ],
   providers: [PracticeService, PracticeResolver],
   exports: [MongooseModule, PracticeService], // Exportar MongooseModule y el servicio

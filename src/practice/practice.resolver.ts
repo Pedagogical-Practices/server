@@ -29,18 +29,18 @@ export class PracticeResolver {
     private readonly submissionService: SubmissionService,
   ) {}
 
-  @ResolveField('student', () => User)
-  async getStudent(@Parent() practice: Practice): Promise<User> {
+  @ResolveField('student', () => User, { nullable: true })
+  async getStudent(@Parent() practice: Practice): Promise<User | null> {
     return this.userService.findOne(practice.student.toString());
   }
 
-  @ResolveField('teacher', () => User)
-  async getTeacher(@Parent() practice: Practice): Promise<User> {
+  @ResolveField('teacher', () => User, { nullable: true })
+  async getTeacher(@Parent() practice: Practice): Promise<User | null> {
     return this.userService.findOne(practice.teacher.toString());
   }
 
-  @ResolveField('course', () => Course)
-  async getCourse(@Parent() practice: Practice): Promise<Course> {
+  @ResolveField('course', () => Course, { nullable: true })
+  async getCourse(@Parent() practice: Practice): Promise<Course | null> {
     return this.courseService.findOne(practice.course.toString());
   }
 
