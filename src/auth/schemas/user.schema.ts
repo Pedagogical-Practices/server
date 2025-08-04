@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document } from 'mongoose';
 import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { UserRole } from '../../common/enums/user-role.enum';
 
@@ -21,7 +21,12 @@ export class User extends Document {
   password: string;
 
   @Field(() => UserRole)
-  @Prop({ required: true, enum: Object.values(UserRole), default: UserRole.STUDENT, type: String })
+  @Prop({
+    required: true,
+    enum: Object.values(UserRole),
+    default: UserRole.STUDENT,
+    type: String,
+  })
   role: UserRole;
 
   @Field()
