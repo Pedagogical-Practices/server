@@ -58,9 +58,10 @@ input CreateSubmissionInput {
 
 input CreateUserInput {
   email: String!
-  name: String!
+  firstName: String!
+  lastName: String!
   password: String!
-  roles: UserRole!
+  roles: [UserRole!]!
 }
 
 """
@@ -334,18 +335,24 @@ input UpdateSubmissionInput {
 
 input UpdateUserInput {
   email: String
+  firstName: String
   id: ID
-  name: String
+  lastName: String
+  middleName: String
   password: String
-  role: UserRole
+  roles: [UserRole!]
+  secondLastName: String
 }
 
 type User {
   createdAt: DateTime!
   email: String!
+  firstName: String!
   id: ID!
-  name: String!
+  lastName: String!
+  middleName: String
   roles: [UserRole!]!
+  secondLastName: String
   updatedAt: DateTime!
 }
 

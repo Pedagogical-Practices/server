@@ -11,7 +11,19 @@ export class User extends Document {
 
   @Field()
   @Prop({ required: true })
-  name: string;
+  firstName: string;
+
+  @Field({ nullable: true })
+  @Prop()
+  middleName: string;
+
+  @Field()
+  @Prop({ required: true })
+  lastName: string;
+
+  @Field({ nullable: true })
+  @Prop()
+  secondLastName: string;
 
   @Field()
   @Prop({ required: true, unique: true })

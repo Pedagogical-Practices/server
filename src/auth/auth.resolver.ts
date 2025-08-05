@@ -24,8 +24,6 @@ export class AuthResolver {
   }
 
   @Mutation(() => User)
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
   async createUser(
     @Args('input') createUserInput: CreateUserInput,
   ): Promise<User> {

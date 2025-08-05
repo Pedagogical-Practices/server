@@ -29,6 +29,8 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       roles: user.roles,
+      firstName: user.firstName,
+      lastName: user.lastName,
     };
     this.logger.log(`Login successful for user: ${user.email}`);
     return {
@@ -38,7 +40,7 @@ export class AuthService {
   }
 
   async createUser(createUserInput: CreateUserInput): Promise<User> {
-    const { email, password, name, roles } = createUserInput;
+    const { firstName, lastName, email, password, roles } = createUserInput;
     const existingUser = await this.userModel.findOne({ email }).exec();
     this.logger.log(`User creation attempt for email: ${email}`);
     if (existingUser) {
@@ -46,9 +48,10 @@ export class AuthService {
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await this.userModel.create({
+      firstName,
+      lastName,
       email,
       password: hashedPassword,
-      name,
       roles,
     });
     this.logger.log(`User created: ${user.email}`);
