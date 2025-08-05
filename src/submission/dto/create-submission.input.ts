@@ -4,14 +4,14 @@ import { GraphQLJSON } from 'graphql-type-json';
 @InputType()
 export class CreateSubmissionInput {
   @Field(() => ID)
-  practiceId: string;
+  groupId: string;
 
   @Field(() => ID)
   protocolId: string;
 
+  @Field(() => [ID])
+  studentIds: string[];
+
   @Field(() => GraphQLJSON)
   formData: any;
-
-  @Field(() => GraphQLJSON, { nullable: true })
-  locationData?: any;
 }

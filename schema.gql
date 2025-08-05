@@ -7,29 +7,26 @@ type AuthPayload {
   user: User!
 }
 
-type Course {
-  createdAt: DateTime!
-  description: String
-  endDate: DateTime!
-  id: ID!
-  name: String!
-  protocols: [Protocol!]!
-  startDate: DateTime!
-  updatedAt: DateTime!
-}
-
-input CreateCourseInput {
-  description: String
-  endDate: String!
-  name: String!
-  protocolIds: [ID!]
-  startDate: String!
-}
-
 input CreateFormInput {
   description: String
   fields: [FormFieldInput!]!
   name: String!
+}
+
+input CreateGroupInput {
+  institutionIds: [ID!]!
+  name: String!
+  period: String!
+  practiceId: ID!
+  studentIds: [ID!]!
+  tutorId: ID!
+}
+
+input CreateGroupProtocolDeadlineInput {
+  endDate: DateTime!
+  groupId: ID!
+  protocolId: ID!
+  startDate: DateTime
 }
 
 input CreateInstitutionInput {
@@ -40,11 +37,9 @@ input CreateInstitutionInput {
 }
 
 input CreatePracticeInput {
-  courseId: ID!
-  protocolIds: [ID!]
-  status: PracticeStatus
-  studentId: ID!
-  teacherId: ID!
+  description: String
+  name: String!
+  protocols: [String!]
 }
 
 input CreateProtocolInput {
@@ -56,16 +51,16 @@ input CreateProtocolInput {
 
 input CreateSubmissionInput {
   formData: JSON!
-  locationData: JSON
-  practiceId: ID!
+  groupId: ID!
   protocolId: ID!
+  studentIds: [ID!]!
 }
 
 input CreateUserInput {
   email: String!
   name: String!
   password: String!
-  role: UserRole!
+  roles: UserRole!
 }
 
 """
@@ -79,7 +74,9 @@ type Form {
   fields: [FormField!]!
   id: ID!
   name: String!
+  parentForm: Form
   updatedAt: DateTime!
+  version: Float!
 }
 
 type FormField {
@@ -157,6 +154,29 @@ enum FormFieldType {
   TIME_PICKER
 }
 
+type Group {
+  createdAt: DateTime!
+  deadlines: [GroupProtocolDeadline!]!
+  id: ID!
+  institutions: [Institution!]!
+  name: String!
+  period: String!
+  practice: Practice!
+  students: [User!]!
+  tutor: User!
+  updatedAt: DateTime!
+}
+
+type GroupProtocolDeadline {
+  createdAt: DateTime!
+  endDate: DateTime!
+  group: Group!
+  id: ID!
+  protocol: Protocol!
+  startDate: DateTime
+  updatedAt: DateTime!
+}
+
 type Institution {
   address: String
   createdAt: DateTime!
@@ -173,49 +193,41 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 scalar JSON
 
 type Mutation {
-  createCourse(input: CreateCourseInput!): Course!
   createForm(input: CreateFormInput!): Form!
+  createGroup(input: CreateGroupInput!): Group!
+  createGroupProtocolDeadline(input: CreateGroupProtocolDeadlineInput!): GroupProtocolDeadline!
   createInstitution(createInstitutionInput: CreateInstitutionInput!): Institution!
   createManyForms(createFormInputs: [CreateFormInput!]!): [Form!]!
-  createPractice(input: CreatePracticeInput!): Practice!
+  createNewFormVersion(formId: ID!): Form!
+  createPractice(createPracticeInput: CreatePracticeInput!): Practice!
   createProtocol(input: CreateProtocolInput!): Protocol!
   createSubmission(input: CreateSubmissionInput!): Submission!
   createUser(input: CreateUserInput!): User!
-  deleteCourse(id: ID!): Boolean!
   deleteForm(id: ID!): Boolean!
-  deletePractice(id: String!): Boolean!
+  deleteGroup(id: ID!): Boolean!
+  deleteGroupProtocolDeadline(id: ID!): Boolean!
   deleteProtocol(id: ID!): Boolean!
   deleteSubmission(id: String!): Boolean!
   deleteUser(id: ID!): Boolean!
   evaluateSubmission(feedback: String!, id: String!, score: Float!): Submission!
   login(email: String!, password: String!): AuthPayload!
   removeInstitution(id: ID!): Boolean!
-  updateCourse(id: ID!, input: UpdateCourseInput!): Course!
+  removePractice(id: ID!): Boolean!
   updateForm(id: ID!, input: UpdateFormInput!): Form!
+  updateGroup(id: ID!, input: UpdateGroupInput!): Group!
+  updateGroupProtocolDeadline(id: ID!, input: UpdateGroupProtocolDeadlineInput!): GroupProtocolDeadline!
   updateInstitution(updateInstitutionInput: UpdateInstitutionInput!): Institution
-  updatePractice(id: String!, input: UpdatePracticeInput!): Practice!
+  updatePractice(updatePracticeInput: UpdatePracticeInput!): Practice!
   updateProtocol(id: ID!, input: UpdateProtocolInput!): Protocol!
   updateSubmission(id: String!, input: UpdateSubmissionInput!): Submission!
   updateUser(id: ID!, input: UpdateUserInput!): User!
 }
 
 type Practice {
-  course: Course
-  createdAt: DateTime!
+  description: String
   id: ID!
+  name: String!
   protocols: [Protocol!]!
-  status: PracticeStatus!
-  student: User
-  submissions: [Submission!]!
-  teacher: User
-  updatedAt: DateTime!
-}
-
-enum PracticeStatus {
-  ARCHIVED
-  COMPLETED
-  IN_PROGRESS
-  PENDING
 }
 
 type Protocol {
@@ -229,23 +241,26 @@ type Protocol {
 }
 
 type Query {
-  course(id: ID!): Course!
-  courses: [Course!]!
   form(id: ID!): Form!
   forms: [Form!]!
+  group(id: ID!): Group!
+  groupProtocolDeadline(id: ID!): GroupProtocolDeadline!
+  groupProtocolDeadlines: [GroupProtocolDeadline!]!
+  groups: [Group!]!
+  groupsByStudent(studentId: ID!): [Group!]!
+  groupsByTutor(tutorId: ID!): [Group!]!
   institution(id: ID!): Institution
   institutions: [Institution!]!
   me: User
-  myPractices: [Practice!]!
-  practice(id: String!): Practice!
+  practice(id: ID!): Practice!
   practices: [Practice!]!
-  practicesByStudent(studentId: String!): [Practice!]!
-  practicesByTeacher(teacherId: String!): [Practice!]!
   protocol(id: ID!): Protocol!
   protocols: [Protocol!]!
   protocolsByIds(ids: [ID!]!): [Protocol!]!
   submission(id: String!): Submission!
   submissions: [Submission!]!
+  submissionsByGroup(groupId: String!): [Submission!]!
+  submissionsByStudent(studentId: String!): [Submission!]!
   user(id: ID!): User
   users: [User!]!
 }
@@ -254,21 +269,12 @@ type Submission {
   createdAt: DateTime!
   feedback: String
   formData: JSON!
+  group: Group!
   id: ID!
-  locationData: JSON
-  practice: Practice!
   protocol: Protocol!
   score: Float
+  students: [User!]!
   updatedAt: DateTime!
-}
-
-input UpdateCourseInput {
-  description: String
-  endDate: String
-  id: ID
-  name: String
-  protocolIds: [ID!]
-  startDate: String
 }
 
 input UpdateFormInput {
@@ -276,6 +282,24 @@ input UpdateFormInput {
   fields: [FormFieldInput!]
   id: String
   name: String
+}
+
+input UpdateGroupInput {
+  id: ID
+  institutionIds: [ID!]
+  name: String
+  period: String
+  practiceId: ID
+  studentIds: [ID!]
+  tutorId: ID
+}
+
+input UpdateGroupProtocolDeadlineInput {
+  endDate: DateTime
+  groupId: ID
+  id: ID!
+  protocolId: ID
+  startDate: DateTime
 }
 
 input UpdateInstitutionInput {
@@ -287,12 +311,10 @@ input UpdateInstitutionInput {
 }
 
 input UpdatePracticeInput {
-  courseId: ID
+  description: String
   id: ID!
-  protocolIds: [ID!]
-  status: PracticeStatus
-  studentId: ID
-  teacherId: ID
+  name: String
+  protocols: [String!]
 }
 
 input UpdateProtocolInput {
@@ -323,13 +345,17 @@ type User {
   email: String!
   id: ID!
   name: String!
-  role: UserRole!
+  roles: [UserRole!]!
   updatedAt: DateTime!
 }
 
 enum UserRole {
   ADMIN
+  ASSESSOR
+  COORDINATOR
   FAMILY
   STUDENT
   TEACHER_DIRECTIVE
+  TUTOR
+  VISITOR
 }

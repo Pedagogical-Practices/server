@@ -20,14 +20,14 @@ export class User extends Document {
   @Prop({ required: true })
   password: string;
 
-  @Field(() => UserRole)
+  @Field(() => [UserRole])
   @Prop({
     required: true,
     enum: Object.values(UserRole),
-    default: UserRole.STUDENT,
-    type: String,
+    default: [UserRole.VISITOR],
+    type: [String],
   })
-  role: UserRole;
+  roles: UserRole[];
 
   @Field()
   createdAt: Date;

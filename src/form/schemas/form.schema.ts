@@ -26,6 +26,14 @@ export class Form extends Document {
 
   @Field()
   updatedAt: Date;
+
+  @Field(() => Number)
+  @Prop({ required: true, default: 1 })
+  version: number;
+
+  @Field(() => Form, { nullable: true })
+  @Prop({ type: Types.ObjectId, ref: 'Form', nullable: true })
+  parentForm?: Types.ObjectId | Form;
 }
 
 export const FormSchema = SchemaFactory.createForClass(Form);

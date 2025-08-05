@@ -4,28 +4,37 @@ import { Model, Types } from 'mongoose';
 import { Submission } from './schemas/submission.schema';
 import { CreateSubmissionInput } from './dto/create-submission.input';
 import { UpdateSubmissionInput } from './dto/update-submission.input';
-import { Practice } from '../practice/schemas/practice.schema';
+import { Group } from '../group/schemas/group.schema';
+import { User } from '../auth/schemas/user.schema';
 import { Protocol } from '../protocol/schemas/protocol.schema';
 
 @Injectable()
 export class SubmissionService {
   constructor(
     @InjectModel(Submission.name) private submissionModel: Model<Submission>,
-    @InjectModel(Practice.name) private practiceModel: Model<Practice>,
+    @InjectModel(Group.name) private groupModel: Model<Group>,
     @InjectModel(Protocol.name) private protocolModel: Model<Protocol>,
+    @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
-  async create(createSubmissionInput: CreateSubmissionInput): Promise<Submission> {
+  async create(
+    createSubmissionInput: CreateSubmissionInput,
+  ): Promise<Submission> {
     const submission = new this.submissionModel({
-      practice: new Types.ObjectId(createSubmissionInput.practiceId),
+      group: new Types.ObjectId(createSubmissionInput.groupId),
       protocol: new Types.ObjectId(createSubmissionInput.protocolId),
+      students: createSubmissionInput.studentIds.map(
+        (id) => new Types.ObjectId(id),
+      ),
       formData: createSubmissionInput.formData,
-      locationData: createSubmissionInput.locationData,
     });
     return submission.save();
   }
 
-  async update(id: string, updateSubmissionInput: UpdateSubmissionInput): Promise<Submission> {
+  async update(
+    id: string,
+    updateSubmissionInput: UpdateSubmissionInput,
+  ): Promise<Submission> {
     const submission = await this.submissionModel.findById(id);
 
     if (!submission) {
@@ -34,9 +43,6 @@ export class SubmissionService {
 
     if (updateSubmissionInput.formData) {
       submission.formData = updateSubmissionInput.formData;
-    }
-    if (updateSubmissionInput.locationData) {
-      submission.locationData = updateSubmissionInput.locationData;
     }
     if (updateSubmissionInput.score) {
       submission.score = updateSubmissionInput.score;
@@ -56,16 +62,18 @@ export class SubmissionService {
   async findOne(id: string): Promise<Submission | null> {
     return this.submissionModel
       .findById(id)
-      .populate('practice')
+      .populate('group')
       .populate('protocol')
+      .populate('students')
       .exec();
   }
 
   async findAll(): Promise<Submission[]> {
     return this.submissionModel
       .find()
-      .populate('practice')
+      .populate('group')
       .populate('protocol')
+      .populate('students')
       .exec();
   }
 
@@ -73,7 +81,11 @@ export class SubmissionService {
     return this.submissionModel.find({ _id: { $in: ids } }).exec();
   }
 
-  async evaluateSubmission(id: string, score: number, feedback: string): Promise<Submission> {
+  async evaluateSubmission(
+    id: string,
+    score: number,
+    feedback: string,
+  ): Promise<Submission> {
     const submission = await this.submissionModel.findById(id);
 
     if (!submission) {
@@ -84,5 +96,13 @@ export class SubmissionService {
     submission.feedback = feedback;
 
     return submission.save();
+  }
+
+  async findByGroup(groupId: string): Promise<Submission[]> {
+    return this.submissionModel.find({ group: new Types.ObjectId(groupId) }).populate('group').populate('protocol').populate('students').exec();
+  }
+
+  async findByStudent(studentId: string): Promise<Submission[]> {
+    return this.submissionModel.find({ students: new Types.ObjectId(studentId) }).populate('group').populate('protocol').populate('students').exec();
   }
 }

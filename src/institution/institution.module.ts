@@ -6,9 +6,11 @@ import { Institution, InstitutionSchema } from './schemas/institution.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Institution.name, schema: InstitutionSchema }]),
+    MongooseModule.forFeature([
+      { name: Institution.name, schema: InstitutionSchema },
+    ]),
   ],
   providers: [InstitutionResolver, InstitutionService],
-  exports: [InstitutionService] // Export InstitutionService to be used in other modules
+  exports: [InstitutionService],
 })
 export class InstitutionModule {}

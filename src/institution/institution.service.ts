@@ -22,6 +22,11 @@ export class InstitutionService {
     return institutions.map(inst => inst.toObject({ getters: true }));
   }
 
+  async findManyByIds(ids: string[]): Promise<Institution[]> {
+    const institutions = await this.institutionModel.find({ _id: { $in: ids } }).exec();
+    return institutions.map(inst => inst.toObject({ getters: true }));
+  }
+
   async findOne(id: string): Promise<Institution | null> {
     const institution = await this.institutionModel.findById(id).exec();
     return institution ? institution.toObject({ getters: true }) : null;

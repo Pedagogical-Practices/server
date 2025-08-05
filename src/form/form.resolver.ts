@@ -62,4 +62,11 @@ export class FormResolver {
   async deleteForm(@Args('id', { type: () => ID }) id: string): Promise<boolean> {
     return this.formService.delete(id);
   }
+
+  @Mutation(() => Form)
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async createNewFormVersion(@Args('formId', { type: () => ID }) formId: string): Promise<Form> {
+    return this.formService.createNewFormVersion(formId);
+  }
 }

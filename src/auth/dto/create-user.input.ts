@@ -13,5 +13,5 @@ export class CreateUserInput {
   password: string;
 
   @Field(() => UserRole)
-  role: UserRole;
+  roles: UserRole;
 }
