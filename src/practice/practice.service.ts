@@ -2,96 +2,60 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Practice } from './schemas/practice.schema';
-import { CreatePracticeInput, UpdatePracticeInput } from './dto/practice.input';
-import { UserRole } from '../common/enums/user-role.enum';
-import { User } from '../auth/schemas/user.schema';
+import { CreatePracticeInput } from './dto/create-practice.input';
+import { UpdatePracticeInput } from './dto/update-practice.input';
+import { Protocol } from '../protocol/schemas/protocol.schema';
 
 @Injectable()
 export class PracticeService {
   constructor(
-    @InjectModel(Practice.name) private practiceModel: Model<Practice>,
-    @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(Practice.name) private readonly practiceModel: Model<Practice>,
+    @InjectModel(Protocol.name) private readonly protocolModel: Model<Protocol>,
   ) {}
 
   async create(createPracticeInput: CreatePracticeInput): Promise<Practice> {
-    const { protocolIds, ...practiceData } = createPracticeInput;
-    const createdPractice = new this.practiceModel({
-      ...practiceData,
-      course: new Types.ObjectId(practiceData.courseId),
-      student: new Types.ObjectId(practiceData.studentId),
-      teacher: new Types.ObjectId(practiceData.teacherId),
-      protocols: protocolIds ? protocolIds.map(id => new Types.ObjectId(id)) : [],
-    });
-    return createdPractice.save();
+    const newPractice = new this.practiceModel(createPracticeInput);
+    if (createPracticeInput.protocols && createPracticeInput.protocols.length > 0) {
+      const protocols = await this.protocolModel.find({ _id: { $in: createPracticeInput.protocols } });
+      if (protocols.length !== createPracticeInput.protocols.length) {
+        throw new NotFoundException('One or more protocols not found');
+      }
+      newPractice.protocols = protocols.map(p => p._id as Types.ObjectId);
+    }
+    return newPractice.save();
   }
 
   async findAll(): Promise<Practice[]> {
-    return this.practiceModel.find().exec();
+    return this.practiceModel.find().populate('protocols').exec();
   }
 
   async findOne(id: string): Promise<Practice> {
-    const practice = await this.practiceModel.findById(id).exec();
-
+    const practice = await this.practiceModel.findById(id).populate('protocols').exec();
     if (!practice) {
-      throw new NotFoundException(`Practice #${id} not found`);
+      throw new NotFoundException(`Practice with ID ${id} not found`);
     }
     return practice;
   }
 
-  async findMyPractices(userId: string): Promise<Practice[]> {
-    const user = await this.userModel.findById(userId).exec();
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
-    }
-
-    let query: any = {};
-    if (user.role === UserRole.STUDENT) {
-      query = { student: new Types.ObjectId(userId) };
-    } else if (user.role === UserRole.TEACHER_DIRECTIVE) {
-      query = { teacher: new Types.ObjectId(userId) };
-    } else {
-      return [];
-    }
-
-    return this.practiceModel.find(query).exec();
-  }
-
-  async findPracticesByTeacher(teacherId: string): Promise<Practice[]> {
-    return this.practiceModel.find({ teacher: new Types.ObjectId(teacherId) }).exec();
-  }
-
-  async findPracticesByStudent(studentId: string): Promise<Practice[]> {
-    return this.practiceModel.find({ student: new Types.ObjectId(studentId) }).exec();
-  }
-
   async update(id: string, updatePracticeInput: UpdatePracticeInput): Promise<Practice> {
-    const { protocolIds, ...updateData } = updatePracticeInput;
-    const practice = await this.practiceModel.findById(id);
-
-    if (!practice) {
+    const existingPractice = await this.practiceModel.findById(id);
+    if (!existingPractice) {
       throw new NotFoundException(`Practice with ID ${id} not found`);
     }
 
-    if (updateData.courseId) {
-      practice.course = new Types.ObjectId(updateData.courseId);
-    }
-    if (updateData.studentId) {
-      practice.student = new Types.ObjectId(updateData.studentId);
-    }
-    if (updateData.teacherId) {
-      practice.teacher = new Types.ObjectId(updateData.teacherId);
-    }
-    if (updateData.status) {
-      practice.status = updateData.status;
-    }
-    if (protocolIds) {
-      practice.protocols = protocolIds.map(id => new Types.ObjectId(id));
+    if (updatePracticeInput.protocols) {
+      const protocols = await this.protocolModel.find({ _id: { $in: updatePracticeInput.protocols } });
+      if (protocols.length !== updatePracticeInput.protocols.length) {
+        throw new NotFoundException('One or more protocols not found');
+      }
+      existingPractice.protocols = protocols.map(p => p._id as Types.ObjectId);
     }
 
-    return practice.save();
+    existingPractice.set(updatePracticeInput);
+    return existingPractice.save();
   }
 
-  async delete(id: string): Promise<boolean> {
+  async remove(id: string): Promise<boolean> {
     const result = await this.practiceModel.deleteOne({ _id: id }).exec();
     return result.deletedCount > 0;
   }

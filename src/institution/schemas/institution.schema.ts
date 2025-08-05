@@ -1,8 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { Field, ObjectType, ID } from '@nestjs/graphql';
 
 export type InstitutionDocument = Institution & Document;
 
+@ObjectType()
 @Schema({
   timestamps: true,
   toJSON: {
@@ -15,21 +17,28 @@ export type InstitutionDocument = Institution & Document;
   },
 })
 export class Institution {
-  id: string; // Virtual property for GraphQL ID
+  @Field(() => ID)
+  declare id: string; // Virtual property for GraphQL ID
 
+  @Field()
   @Prop({ required: true, unique: true })
   name: string;
 
+  @Field({ nullable: true })
   @Prop()
   address: string;
 
+  @Field({ nullable: true })
   @Prop()
   phone: string;
 
+  @Field({ nullable: true })
   @Prop()
   email: string;
 
+  @Field(() => Date)
   createdAt: Date; // Explicitly declare for TypeScript
+  @Field(() => Date)
   updatedAt: Date; // Explicitly declare for TypeScript
 }
 

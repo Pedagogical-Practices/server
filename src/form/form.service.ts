@@ -41,6 +41,24 @@ export class FormService {
     return updatedForm;
   }
 
+  async createNewFormVersion(formId: string): Promise<Form> {
+    const originalForm = await this.formModel.findById(formId).exec();
+    if (!originalForm) {
+      throw new NotFoundException(`Form with ID ${formId} not found`);
+    }
+
+    const newVersion = originalForm.version + 1;
+    const newForm = new this.formModel({
+      name: originalForm.name,
+      description: originalForm.description,
+      fields: originalForm.fields, // Deep copy if fields can be modified independently
+      version: newVersion,
+      parentForm: originalForm._id, // Link to the original form
+    });
+
+    return newForm.save();
+  }
+
   async delete(id: string): Promise<boolean> {
     const result = await this.formModel.deleteOne({ _id: id }).exec();
     return result.deletedCount > 0;

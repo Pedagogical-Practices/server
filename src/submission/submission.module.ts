@@ -6,7 +6,7 @@ import { SubmissionService } from './submission.service';
 import { Submission, SubmissionSchema } from './schemas/submission.schema';
 import { AuthModule } from 'src/auth/auth.module';
 import { GraphQLJSON } from 'graphql-type-json';
-import { PracticeModule } from 'src/practice/practice.module';
+import { GroupModule } from 'src/group/group.module';
 import { ProtocolModule } from '../protocol/protocol.module';
 
 @Module({
@@ -15,7 +15,7 @@ import { ProtocolModule } from '../protocol/protocol.module';
       { name: Submission.name, schema: SubmissionSchema },
     ]),
     AuthModule,
-    forwardRef(() => PracticeModule),
+    forwardRef(() => GroupModule),
     ProtocolModule,
   ],
   providers: [

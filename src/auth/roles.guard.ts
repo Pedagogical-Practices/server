@@ -23,13 +23,13 @@ export class RolesGuard implements CanActivate {
     const user = connection ? connection.context.user : req.user;
 
     this.logger.debug(`Required roles: ${requiredRoles}`);
-    this.logger.debug(`User role: ${user?.role}`);
+    this.logger.debug(`User roles: ${user?.roles}`);
 
-    if (!user) {
-      this.logger.warn('RolesGuard: User object is undefined or null.');
-      return false; // Deny access if user is not defined
+    if (!user || !user.roles) {
+      this.logger.warn('RolesGuard: User object is undefined, null, or has no roles.');
+      return false; // Deny access if user is not defined or has no roles
     }
 
-    return requiredRoles.includes(user.role);
+    return requiredRoles.some((role) => user.roles.includes(role));
   }
 }

@@ -28,7 +28,9 @@ export class AuthService {
     const payload = {
       sub: user.id,
       email: user.email,
-      role: user.role,
+      roles: user.roles,
+      firstName: user.firstName,
+      lastName: user.lastName,
     };
     this.logger.log(`Login successful for user: ${user.email}`);
     return {
@@ -38,7 +40,7 @@ export class AuthService {
   }
 
   async createUser(createUserInput: CreateUserInput): Promise<User> {
-    const { email, password, name, role } = createUserInput;
+    const { firstName, lastName, email, password, roles } = createUserInput;
     const existingUser = await this.userModel.findOne({ email }).exec();
     this.logger.log(`User creation attempt for email: ${email}`);
     if (existingUser) {
@@ -46,10 +48,11 @@ export class AuthService {
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await this.userModel.create({
+      firstName,
+      lastName,
       email,
       password: hashedPassword,
-      name,
-      role,
+      roles,
     });
     this.logger.log(`User created: ${user.email}`);
     return user;
@@ -75,6 +78,10 @@ export class AuthService {
   async findAll(): Promise<User[]> {
     const users = await this.userModel.find().exec();
     return users;
+  }
+
+  async findManyByIds(ids: string[]): Promise<User[]> {
+    return this.userModel.find({ _id: { $in: ids } }).exec();
   }
 
   async deleteUser(id: string): Promise<boolean> {

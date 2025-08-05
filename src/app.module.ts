@@ -8,11 +8,13 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { FormModule } from './form/form.module';
 import { AuthModule } from './auth/auth.module';
-import { CourseModule } from './course/course.module';
+
 import { ProtocolModule } from './protocol/protocol.module';
 import { SubmissionModule } from './submission/submission.module';
-import { PracticeModule } from './practice/practice.module';
+import { GroupModule } from './group/group.module';
 import { InstitutionModule } from './institution/institution.module';
+import { GroupProtocolDeadlineModule } from './group-protocol-deadline/group-protocol-deadline.module';
+import { PracticeModule } from './practice/practice.module';
 
 import { GraphQLJSON } from 'graphql-type-json';
 
@@ -39,11 +41,12 @@ import { GraphQLJSON } from 'graphql-type-json';
     }),
     FormModule,
     AuthModule,
-    CourseModule,
     ProtocolModule,
     SubmissionModule,
+    GroupModule,
+    // InstitutionModule,
+    GroupProtocolDeadlineModule,
     PracticeModule,
-    InstitutionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

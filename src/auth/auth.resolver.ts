@@ -24,8 +24,6 @@ export class AuthResolver {
   }
 
   @Mutation(() => User)
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
   async createUser(
     @Args('input') createUserInput: CreateUserInput,
   ): Promise<User> {
@@ -50,14 +48,14 @@ export class AuthResolver {
 
   @Query(() => [User])
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.TEACHER_DIRECTIVE)
+  @Roles(UserRole.ADMIN, UserRole.COORDINATOR)
   async users(): Promise<User[]> {
     return this.authService.findAll();
   }
 
   @Query(() => User, { nullable: true })
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.TEACHER_DIRECTIVE)
+  @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.TUTOR)
   async user(@Args('id', { type: () => ID }) id: string): Promise<User | null> {
     return this.authService.findOne(id);
   }

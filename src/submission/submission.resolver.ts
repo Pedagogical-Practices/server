@@ -25,7 +25,7 @@ export class SubmissionResolver {
 
   @Mutation(() => Submission)
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.TEACHER_DIRECTIVE, UserRole.STUDENT)
+  @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.TUTOR, UserRole.STUDENT)
   async updateSubmission(
     @Args('id') id: string,
     @Args('input') updateSubmissionInput: UpdateSubmissionInput,
@@ -35,14 +35,14 @@ export class SubmissionResolver {
 
   @Mutation(() => Boolean)
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.COORDINATOR)
   async deleteSubmission(@Args('id') id: string): Promise<boolean> {
     return this.submissionService.delete(id);
   }
 
   @Mutation(() => Submission)
   @UseGuards(RolesGuard)
-  @Roles(UserRole.TEACHER_DIRECTIVE)
+  @Roles(UserRole.TUTOR)
   async evaluateSubmission(
     @Args('id') id: string,
     @Args('score') score: number,
@@ -53,15 +53,33 @@ export class SubmissionResolver {
 
   @Query(() => [Submission])
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.TEACHER_DIRECTIVE, UserRole.STUDENT)
+  @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.TUTOR, UserRole.STUDENT)
   async submissions(): Promise<Submission[]> {
     return this.submissionService.findAll();
   }
 
   @Query(() => Submission)
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.TEACHER_DIRECTIVE, UserRole.STUDENT)
+  @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.TUTOR, UserRole.STUDENT)
   async submission(@Args('id') id: string): Promise<Submission | null> {
     return this.submissionService.findOne(id);
+  }
+
+  @Query(() => [Submission])
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.TUTOR)
+  async submissionsByGroup(
+    @Args('groupId') groupId: string,
+  ): Promise<Submission[]> {
+    return this.submissionService.findByGroup(groupId);
+  }
+
+  @Query(() => [Submission])
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.TUTOR, UserRole.STUDENT)
+  async submissionsByStudent(
+    @Args('studentId') studentId: string,
+  ): Promise<Submission[]> {
+    return this.submissionService.findByStudent(studentId);
   }
 }
