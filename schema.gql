@@ -132,27 +132,9 @@ input FormFieldInput {
   required: Boolean
   rules: [String!]
   specificType: String
-  type: FormFieldType!
+  type: String!
   value: JSON
   variableName: String
-}
-
-enum FormFieldType {
-  AUTOCOMPLETE
-  BUTTON
-  CHECKBOX
-  DATE
-  DATE_PICKER
-  EMAIL
-  FILE_UPLOAD
-  MAP
-  NUMBER
-  PASSWORD
-  RADIO_GROUP
-  SELECT
-  TEXT
-  TEXTAREA
-  TIME_PICKER
 }
 
 type Group {
