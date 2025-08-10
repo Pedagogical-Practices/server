@@ -40,11 +40,19 @@ export class GroupResolver {
 
   @ResolveField('practice', () => Practice)
   async getPractice(@Parent() group: Group): Promise<Practice> {
+    // If practice is already populated by Mongoose, return it directly
+    if (group.practice && typeof group.practice === 'object' && 'name' in group.practice) {
+      return group.practice;
+    }
+    // Otherwise, fetch it by ID (this case should ideally not happen if populate works)
     return this.practiceService.findOne(group.practice.toString());
   }
 
   @ResolveField('tutor', () => User)
   async getTutor(@Parent() group: Group): Promise<User> {
+    if (group.tutor && typeof group.tutor === 'object' && 'firstName' in group.tutor) {
+      return group.tutor;
+    }
     const tutor = await this.userService.findOne(group.tutor.toString());
     if (!tutor) {
       throw new NotFoundException(`Tutor with ID ${group.tutor.toString()} not found`);
@@ -54,6 +62,11 @@ export class GroupResolver {
 
   @ResolveField('students', () => [User])
   async getStudents(@Parent() group: Group): Promise<User[]> {
+    // Check if students array is populated with objects
+    if (group.students && group.students.length > 0 && typeof group.students[0] === 'object' && 'firstName' in group.students[0]) {
+      return group.students as User[]; // Cast to User[] as it's already populated
+    }
+    // Otherwise, fetch them by ID
     return this.userService.findManyByIds(
       group.students.map((s) => s.toString()),
     );
@@ -61,6 +74,11 @@ export class GroupResolver {
 
   @ResolveField('institutions', () => [Institution])
   async getInstitutions(@Parent() group: Group): Promise<Institution[]> {
+    // Check if institutions array is populated with objects
+    if (group.institutions && group.institutions.length > 0 && typeof group.institutions[0] === 'object' && 'name' in group.institutions[0]) {
+      return group.institutions as Institution[]; // Cast to Institution[]
+    }
+    // Otherwise, fetch them by ID
     return this.institutionService.findManyByIds(
       group.institutions.map((i) => i.toString()),
     );
