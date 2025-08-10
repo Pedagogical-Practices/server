@@ -246,6 +246,7 @@ type Query {
   submissionsByStudent(studentId: String!): [Submission!]!
   user(id: ID!): User
   users: [User!]!
+  usersByIds(ids: [ID!]!): [User!]!
 }
 
 type Submission {

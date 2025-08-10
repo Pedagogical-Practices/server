@@ -60,6 +60,13 @@ export class AuthResolver {
     return this.authService.findOne(id);
   }
 
+  @Query(() => [User])
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.TUTOR, UserRole.ASSESSOR, UserRole.STUDENT)
+  async usersByIds(@Args('ids', { type: () => [ID] }) ids: string[]): Promise<User[]> {
+    return this.authService.findManyByIds(ids);
+  }
+
   @Mutation(() => Boolean)
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
