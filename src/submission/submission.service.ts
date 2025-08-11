@@ -23,6 +23,7 @@ export class SubmissionService {
     const submission = new this.submissionModel({
       group: new Types.ObjectId(createSubmissionInput.groupId),
       protocol: new Types.ObjectId(createSubmissionInput.protocolId),
+      form: new Types.ObjectId(createSubmissionInput.formId),
       students: createSubmissionInput.studentIds.map(
         (id) => new Types.ObjectId(id),
       ),
@@ -63,7 +64,7 @@ export class SubmissionService {
     return this.submissionModel
       .findById(id)
       .populate('group')
-      .populate('protocol')
+      .populate('protocol').populate('form')
       .populate('students')
       .exec();
   }
@@ -72,7 +73,7 @@ export class SubmissionService {
     return this.submissionModel
       .find()
       .populate('group')
-      .populate('protocol')
+      .populate('protocol').populate('form')
       .populate('students')
       .exec();
   }
@@ -99,10 +100,22 @@ export class SubmissionService {
   }
 
   async findByGroup(groupId: string): Promise<Submission[]> {
-    return this.submissionModel.find({ group: new Types.ObjectId(groupId) }).populate('group').populate('protocol').populate('students').exec();
+    return this.submissionModel.find({ group: new Types.ObjectId(groupId) }).populate('group').populate('protocol').populate('form').populate('students').exec();
   }
 
   async findByStudent(studentId: string): Promise<Submission[]> {
-    return this.submissionModel.find({ students: new Types.ObjectId(studentId) }).populate('group').populate('protocol').populate('students').exec();
+    return this.submissionModel.find({ students: new Types.ObjectId(studentId) }).populate('group').populate('protocol').populate('form').populate('students').exec();
+  }
+
+  async findByStudentAndGroup(studentId: string, groupId: string): Promise<Submission[]> {
+    return this.submissionModel
+      .find({
+        students: new Types.ObjectId(studentId),
+        group: new Types.ObjectId(groupId),
+      })
+      .populate('group')
+      .populate('protocol').populate('form')
+      .populate('students')
+      .exec();
   }
 }

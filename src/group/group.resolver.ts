@@ -25,6 +25,7 @@ import { Roles } from '../auth/roles.decorator';
 import { UserRole } from '../common/enums/user-role.enum';
 import { ID } from '@nestjs/graphql';
 import { AuthGuard } from '../auth/auth.guard';
+import { CurrentUser } from '../auth/current-user.decorator';
 
 @Resolver(() => Group)
 @UseGuards(AuthGuard)
@@ -149,5 +150,13 @@ export class GroupResolver {
     @Args('studentId', { type: () => ID }) studentId: string,
   ): Promise<Group[]> {
     return this.groupService.findGroupsByStudent(studentId);
+  }
+
+  @Query(() => [Group])
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.STUDENT) // Only students should see their own groups
+  async myGroups(@CurrentUser() user: any): Promise<Group[]> {
+    // Assuming user.id is the ID of the currently logged-in user
+    return this.groupService.findGroupsByStudent(user.id);
   }
 }

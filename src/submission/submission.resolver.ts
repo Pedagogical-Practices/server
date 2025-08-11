@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { SubmissionService } from './submission.service';
 import { Submission } from './schemas/submission.schema';
 import { CreateSubmissionInput } from './dto/create-submission.input';
@@ -27,7 +27,7 @@ export class SubmissionResolver {
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.TUTOR, UserRole.STUDENT)
   async updateSubmission(
-    @Args('id') id: string,
+    @Args('id', { type: () => ID }) id: string,
     @Args('input') updateSubmissionInput: UpdateSubmissionInput,
   ): Promise<Submission> {
     return this.submissionService.update(id, updateSubmissionInput);
@@ -36,7 +36,7 @@ export class SubmissionResolver {
   @Mutation(() => Boolean)
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.COORDINATOR)
-  async deleteSubmission(@Args('id') id: string): Promise<boolean> {
+  async deleteSubmission(@Args('id', { type: () => ID }) id: string): Promise<boolean> {
     return this.submissionService.delete(id);
   }
 
@@ -44,7 +44,7 @@ export class SubmissionResolver {
   @UseGuards(RolesGuard)
   @Roles(UserRole.TUTOR)
   async evaluateSubmission(
-    @Args('id') id: string,
+    @Args('id', { type: () => ID }) id: string,
     @Args('score') score: number,
     @Args('feedback') feedback: string,
   ): Promise<Submission> {
@@ -61,7 +61,7 @@ export class SubmissionResolver {
   @Query(() => Submission)
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.TUTOR, UserRole.STUDENT)
-  async submission(@Args('id') id: string): Promise<Submission | null> {
+  async submission(@Args('id', { type: () => ID }) id: string): Promise<Submission | null> {
     return this.submissionService.findOne(id);
   }
 
@@ -69,7 +69,7 @@ export class SubmissionResolver {
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.TUTOR)
   async submissionsByGroup(
-    @Args('groupId') groupId: string,
+    @Args('groupId', { type: () => ID }) groupId: string,
   ): Promise<Submission[]> {
     return this.submissionService.findByGroup(groupId);
   }
@@ -78,8 +78,18 @@ export class SubmissionResolver {
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.TUTOR, UserRole.STUDENT)
   async submissionsByStudent(
-    @Args('studentId') studentId: string,
+    @Args('studentId', { type: () => ID }) studentId: string,
   ): Promise<Submission[]> {
     return this.submissionService.findByStudent(studentId);
+  }
+
+  @Query(() => [Submission])
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.TUTOR, UserRole.STUDENT)
+  async submissionsByStudentAndGroup(
+    @Args('studentId', { type: () => ID }) studentId: string,
+    @Args('groupId', { type: () => ID }) groupId: string,
+  ): Promise<Submission[]> {
+    return this.submissionService.findByStudentAndGroup(studentId, groupId);
   }
 }
