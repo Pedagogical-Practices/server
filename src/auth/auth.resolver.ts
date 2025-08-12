@@ -48,7 +48,7 @@ export class AuthResolver {
 
   @Query(() => [User])
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.COORDINATOR)
+  @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.STUDENT, UserRole.TEACHER_DIRECTIVE)
   async users(): Promise<User[]> {
     return this.authService.findAll();
   }
