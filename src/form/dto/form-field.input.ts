@@ -10,8 +10,8 @@ export class FormFieldInput {
   @Field()
   name: string;
 
-  @Field(() => FormFieldType)
-  type: FormFieldType;
+  @Field(() => String)
+  type: string;
 
   @Field(() => GraphQLJSON, { nullable: true })
   options?: Record<string, any>;

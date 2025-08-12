@@ -5,6 +5,7 @@ import { GraphQLJSON } from 'graphql-type-json';
 import { Group } from '../../group/schemas/group.schema';
 import { User } from '../../auth/schemas/user.schema';
 import { Protocol } from '../../protocol/schemas/protocol.schema';
+import { Form } from '../../form/schemas/form.schema';
 
 @ObjectType()
 @Schema({ timestamps: true })
@@ -23,6 +24,11 @@ export class Submission extends Document {
     required: true,
   })
   protocol: Types.ObjectId | Protocol;
+
+  @Field(() => Form)
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Form', required: true })
+  form: Types.ObjectId | Form;
+
 
   @Field(() => [User])
   @Prop({

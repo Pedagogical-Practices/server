@@ -51,6 +51,7 @@ input CreateProtocolInput {
 
 input CreateSubmissionInput {
   formData: JSON!
+  formId: ID!
   groupId: ID!
   protocolId: ID!
   studentIds: [ID!]!
@@ -132,27 +133,9 @@ input FormFieldInput {
   required: Boolean
   rules: [String!]
   specificType: String
-  type: FormFieldType!
+  type: String!
   value: JSON
   variableName: String
-}
-
-enum FormFieldType {
-  AUTOCOMPLETE
-  BUTTON
-  CHECKBOX
-  DATE
-  DATE_PICKER
-  EMAIL
-  FILE_UPLOAD
-  MAP
-  NUMBER
-  PASSWORD
-  RADIO_GROUP
-  SELECT
-  TEXT
-  TEXTAREA
-  TIME_PICKER
 }
 
 type Group {
@@ -208,9 +191,9 @@ type Mutation {
   deleteGroup(id: ID!): Boolean!
   deleteGroupProtocolDeadline(id: ID!): Boolean!
   deleteProtocol(id: ID!): Boolean!
-  deleteSubmission(id: String!): Boolean!
+  deleteSubmission(id: ID!): Boolean!
   deleteUser(id: ID!): Boolean!
-  evaluateSubmission(feedback: String!, id: String!, score: Float!): Submission!
+  evaluateSubmission(feedback: String!, id: ID!, score: Float!): Submission!
   login(email: String!, password: String!): AuthPayload!
   removeInstitution(id: ID!): Boolean!
   removePractice(id: ID!): Boolean!
@@ -220,7 +203,7 @@ type Mutation {
   updateInstitution(updateInstitutionInput: UpdateInstitutionInput!): Institution
   updatePractice(updatePracticeInput: UpdatePracticeInput!): Practice!
   updateProtocol(id: ID!, input: UpdateProtocolInput!): Protocol!
-  updateSubmission(id: String!, input: UpdateSubmissionInput!): Submission!
+  updateSubmission(id: ID!, input: UpdateSubmissionInput!): Submission!
   updateUser(id: ID!, input: UpdateUserInput!): User!
 }
 
@@ -253,22 +236,26 @@ type Query {
   institution(id: ID!): Institution
   institutions: [Institution!]!
   me: User
+  myGroups: [Group!]!
   practice(id: ID!): Practice!
   practices: [Practice!]!
   protocol(id: ID!): Protocol!
   protocols: [Protocol!]!
   protocolsByIds(ids: [ID!]!): [Protocol!]!
-  submission(id: String!): Submission!
+  submission(id: ID!): Submission!
   submissions: [Submission!]!
-  submissionsByGroup(groupId: String!): [Submission!]!
-  submissionsByStudent(studentId: String!): [Submission!]!
+  submissionsByGroup(groupId: ID!): [Submission!]!
+  submissionsByStudent(studentId: ID!): [Submission!]!
+  submissionsByStudentAndGroup(groupId: ID!, studentId: ID!): [Submission!]!
   user(id: ID!): User
   users: [User!]!
+  usersByIds(ids: [ID!]!): [User!]!
 }
 
 type Submission {
   createdAt: DateTime!
   feedback: String
+  form: Form!
   formData: JSON!
   group: Group!
   id: ID!

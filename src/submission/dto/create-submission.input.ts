@@ -9,6 +9,9 @@ export class CreateSubmissionInput {
   @Field(() => ID)
   protocolId: string;
 
+  @Field(() => ID)
+  formId: string;
+
   @Field(() => [ID])
   studentIds: string[];
 
