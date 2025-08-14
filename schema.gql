@@ -95,6 +95,7 @@ type FormField {
   hint: String
   id: ID
   inconsistencyMessage: String
+  items: [String!]
   label: String!
   multiple: Boolean
   name: String!
@@ -129,6 +130,7 @@ input FormFieldInput {
   height: String
   hint: String
   inconsistencyMessage: String
+  items: [String!]
   label: String!
   multiple: Boolean
   name: String!

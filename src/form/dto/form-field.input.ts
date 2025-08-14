@@ -79,6 +79,9 @@ export class FormFieldInput {
   @Field({ nullable: true })
   color?: string;
 
+  @Field(() => [String], { nullable: true })
+  items?: string[];
+
   @Field({ nullable: true })
   text?: string;
 

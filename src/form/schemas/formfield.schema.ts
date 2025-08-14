@@ -27,6 +27,10 @@ export class FormField {
   options: Record<string, any>;
 
   @Field(() => [String], { nullable: true })
+  @Prop({ type: [String], required: false })
+  items?: string[];
+
+  @Field(() => [String], { nullable: true })
   @Prop({ type: [String] })
   rules: string[];
 
