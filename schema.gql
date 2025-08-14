@@ -90,6 +90,7 @@ type FormField {
   description: String
   disabled: Boolean
   errorType: String
+  fontWeight: String
   height: String
   hint: String
   id: ID
@@ -105,9 +106,14 @@ type FormField {
   required: Boolean
   rules: [String!]
   specificType: String
+  tag: String
+  textAlign: String
+  textDecoration: String
+  textTransform: String
   type: String!
   value: JSON
   variableName: String
+  variant: String
 }
 
 input FormFieldInput {
