@@ -119,6 +119,7 @@ input FormFieldInput {
   description: String
   disabled: Boolean
   errorType: String
+  fontWeight: String
   height: String
   hint: String
   inconsistencyMessage: String
@@ -133,9 +134,15 @@ input FormFieldInput {
   required: Boolean
   rules: [String!]
   specificType: String
+  tag: String
+  text: String
+  textAlign: String
+  textDecoration: String
+  textTransform: String
   type: String!
   value: JSON
   variableName: String
+  variant: String
 }
 
 type Group {

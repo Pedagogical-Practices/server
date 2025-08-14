@@ -78,4 +78,25 @@ export class FormFieldInput {
 
   @Field({ nullable: true })
   color?: string;
+
+  @Field({ nullable: true })
+  text?: string;
+
+  @Field({ nullable: true })
+  variant?: string;
+
+  @Field({ nullable: true })
+  fontWeight?: string;
+
+  @Field({ nullable: true })
+  textAlign?: string;
+
+  @Field({ nullable: true })
+  textDecoration?: string;
+
+  @Field({ nullable: true })
+  textTransform?: string;
+
+  @Field({ nullable: true })
+  tag?: string;
 }
