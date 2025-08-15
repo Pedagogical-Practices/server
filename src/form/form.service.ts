@@ -10,6 +10,7 @@ export class FormService {
   constructor(@InjectModel(Form.name) private formModel: Model<Form>) {}
 
   async create(createFormInput: CreateFormInput): Promise<Form> {
+    console.log('FormService: create - createFormInput.fields:', JSON.stringify(createFormInput.fields, null, 2));
     const createdForm = new this.formModel(createFormInput);
     return createdForm.save();
   }
@@ -32,6 +33,7 @@ export class FormService {
   }
 
   async update(id: string, updateFormInput: UpdateFormInput): Promise<Form> {
+    console.log('FormService: update - updateFormInput.fields:', JSON.stringify(updateFormInput.fields, null, 2));
     const updatedForm = await this.formModel
       .findByIdAndUpdate(id, updateFormInput, { new: true })
       .exec();

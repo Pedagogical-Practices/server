@@ -27,6 +27,10 @@ export class FormField {
   options: Record<string, any>;
 
   @Field(() => [String], { nullable: true })
+  @Prop({ type: [String], required: false })
+  items?: string[];
+
+  @Field(() => [String], { nullable: true })
   @Prop({ type: [String] })
   rules: string[];
 
@@ -109,6 +113,30 @@ export class FormField {
   @Field({ nullable: true })
   @Prop({ required: false })
   color?: string;
+
+  @Field({ nullable: true })
+  @Prop({ required: false })
+  variant?: string;
+
+  @Field({ nullable: true })
+  @Prop({ required: false })
+  fontWeight?: string;
+
+  @Field({ nullable: true })
+  @Prop({ required: false })
+  textAlign?: string;
+
+  @Field({ nullable: true })
+  @Prop({ required: false })
+  textDecoration?: string;
+
+  @Field({ nullable: true })
+  @Prop({ required: false })
+  textTransform?: string;
+
+  @Field({ nullable: true })
+  @Prop({ required: false })
+  tag?: string;
 }
 
 export const FormFieldSchema = SchemaFactory.createForClass(FormField);
