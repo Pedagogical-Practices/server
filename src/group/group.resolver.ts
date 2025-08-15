@@ -46,6 +46,9 @@ export class GroupResolver {
       return group.practice;
     }
     // Otherwise, fetch it by ID (this case should ideally not happen if populate works)
+    if (!group.practice) {
+      throw new NotFoundException(`Practice reference for group ${group.id} is null or invalid`);
+    }
     return this.practiceService.findOne(group.practice.toString());
   }
 
@@ -53,6 +56,9 @@ export class GroupResolver {
   async getTutor(@Parent() group: Group): Promise<User> {
     if (group.tutor && typeof group.tutor === 'object' && 'firstName' in group.tutor) {
       return group.tutor;
+    }
+    if (!group.tutor) {
+      throw new NotFoundException(`Tutor reference for group ${group.id} is null or invalid`);
     }
     const tutor = await this.userService.findOne(group.tutor.toString());
     if (!tutor) {
@@ -69,7 +75,7 @@ export class GroupResolver {
     }
     // Otherwise, fetch them by ID
     return this.userService.findManyByIds(
-      group.students.map((s) => s.toString()),
+      group.students.filter(s => s).map((s) => s.toString()), // Filter out any null/undefined references
     );
   }
 
@@ -81,7 +87,7 @@ export class GroupResolver {
     }
     // Otherwise, fetch them by ID
     return this.institutionService.findManyByIds(
-      group.institutions.map((i) => i.toString()),
+      group.institutions.filter(i => i).map((i) => i.toString()), // Filter out any null/undefined references
     );
   }
 
