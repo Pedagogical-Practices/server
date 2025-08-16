@@ -259,6 +259,7 @@ type Query {
   protocolsByIds(ids: [ID!]!): [Protocol!]!
   submission(id: ID!): Submission!
   submissions: [Submission!]!
+  submissionsByFormAndGroup(formId: ID!, groupId: ID!): [Submission!]!
   submissionsByGroup(groupId: ID!): [Submission!]!
   submissionsByStudent(studentId: ID!): [Submission!]!
   submissionsByStudentAndGroup(groupId: ID!, studentId: ID!): [Submission!]!

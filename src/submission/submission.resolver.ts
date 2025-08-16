@@ -67,7 +67,7 @@ export class SubmissionResolver {
 
   @Query(() => [Submission])
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.TUTOR)
+  @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.TUTOR, UserRole.STUDENT)
   async submissionsByGroup(
     @Args('groupId', { type: () => ID }) groupId: string,
   ): Promise<Submission[]> {
@@ -91,5 +91,15 @@ export class SubmissionResolver {
     @Args('groupId', { type: () => ID }) groupId: string,
   ): Promise<Submission[]> {
     return this.submissionService.findByStudentAndGroup(studentId, groupId);
+  }
+
+  @Query(() => [Submission])
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.TUTOR, UserRole.STUDENT)
+  async submissionsByFormAndGroup(
+    @Args('groupId', { type: () => ID }) groupId: string,
+    @Args('formId', { type: () => ID }) formId: string,
+  ): Promise<Submission[]> {
+    return this.submissionService.findByFormAndGroup(groupId, formId);
   }
 }

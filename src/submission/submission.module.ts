@@ -8,6 +8,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { GraphQLJSON } from 'graphql-type-json';
 import { GroupModule } from 'src/group/group.module';
 import { ProtocolModule } from '../protocol/protocol.module';
+import { GroupProtocolDeadlineModule } from '../group-protocol-deadline/group-protocol-deadline.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ProtocolModule } from '../protocol/protocol.module';
     AuthModule,
     forwardRef(() => GroupModule),
     ProtocolModule,
+    GroupProtocolDeadlineModule, // Importar el módulo de fechas límite
   ],
   providers: [
     SubmissionResolver,

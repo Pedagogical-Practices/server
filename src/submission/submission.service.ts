@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Submission } from './schemas/submission.schema';
@@ -7,6 +7,7 @@ import { UpdateSubmissionInput } from './dto/update-submission.input';
 import { Group } from '../group/schemas/group.schema';
 import { User } from '../auth/schemas/user.schema';
 import { Protocol } from '../protocol/schemas/protocol.schema';
+import { GroupProtocolDeadlineService } from '../group-protocol-deadline/group-protocol-deadline.service';
 
 @Injectable()
 export class SubmissionService {
@@ -15,14 +16,26 @@ export class SubmissionService {
     @InjectModel(Group.name) private groupModel: Model<Group>,
     @InjectModel(Protocol.name) private protocolModel: Model<Protocol>,
     @InjectModel(User.name) private userModel: Model<User>,
+    private readonly groupProtocolDeadlineService: GroupProtocolDeadlineService,
   ) {}
 
   async create(
     createSubmissionInput: CreateSubmissionInput,
   ): Promise<Submission> {
+    const { groupId, protocolId } = createSubmissionInput;
+
+    // Deadline validation logic
+    const deadlines = await this.groupProtocolDeadlineService.findManyByGroupAndProtocol(groupId, protocolId);
+    if (deadlines && deadlines.length > 0) {
+      const deadline = deadlines[0]; // Assume the first one is the relevant one
+      if (new Date() > deadline.endDate) {
+        throw new ForbiddenException('The deadline for this submission has passed.');
+      }
+    }
+
     const submission = new this.submissionModel({
-      group: new Types.ObjectId(createSubmissionInput.groupId),
-      protocol: new Types.ObjectId(createSubmissionInput.protocolId),
+      group: new Types.ObjectId(groupId),
+      protocol: new Types.ObjectId(protocolId),
       form: new Types.ObjectId(createSubmissionInput.formId),
       students: createSubmissionInput.studentIds.map(
         (id) => new Types.ObjectId(id),
@@ -116,6 +129,20 @@ export class SubmissionService {
       .populate('group')
       .populate('protocol').populate('form')
       .populate('students')
+      .exec();
+  }
+
+  async findByFormAndGroup(groupId: string, formId: string): Promise<Submission[]> {
+    return this.submissionModel
+      .find({
+        group: new Types.ObjectId(groupId),
+        form: new Types.ObjectId(formId),
+      })
+      .populate('group')
+      .populate('protocol')
+      .populate('form')
+      .populate('students')
+      .sort({ createdAt: -1 })
       .exec();
   }
 }
