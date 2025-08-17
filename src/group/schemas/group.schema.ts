@@ -6,6 +6,8 @@ import { User } from '../../auth/schemas/user.schema';
 import { Institution } from '../../institution/schemas/institution.schema';
 import { GroupProtocolDeadline } from '../../group-protocol-deadline/schemas/group-protocol-deadline.schema';
 
+export type GroupDocument = Group & Document;
+
 @ObjectType()
 @Schema({ timestamps: true })
 export class Group extends Document {
@@ -63,3 +65,7 @@ export class Group extends Document {
 }
 
 export const GroupSchema = SchemaFactory.createForClass(Group);
+
+GroupSchema.virtual('id').get(function(this: GroupDocument) {
+  return (this._id as Types.ObjectId).toHexString();
+});

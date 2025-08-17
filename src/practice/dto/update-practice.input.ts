@@ -1,12 +1,9 @@
-import { Field, InputType, PartialType, ID } from '@nestjs/graphql';
+import { Field, InputType, PartialType } from '@nestjs/graphql';
 import { CreatePracticeInput } from './create-practice.input';
 import { IsOptional, IsString, IsArray } from 'class-validator';
 
 @InputType()
 export class UpdatePracticeInput extends PartialType(CreatePracticeInput) {
-  @Field(() => ID)
-  id: string;
-
   @Field({ nullable: true })
   @IsOptional()
   @IsString()

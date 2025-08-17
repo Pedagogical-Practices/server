@@ -13,10 +13,10 @@ export class InstitutionResolver {
   @Mutation(() => Institution)
   @Roles(UserRole.ADMIN)
   createInstitution(
-    @Args('createInstitutionInput')
-    createInstitutionInput: CreateInstitutionInput,
+    @Args('input')
+    input: CreateInstitutionInput,
   ): Promise<Institution> {
-    return this.institutionService.create(createInstitutionInput);
+    return this.institutionService.create(input);
   }
 
   @Query(() => [Institution], { name: 'institutions' })
@@ -36,20 +36,18 @@ export class InstitutionResolver {
   @Mutation(() => Institution, { nullable: true })
   @Roles(UserRole.ADMIN)
   updateInstitution(
-    @Args('updateInstitutionInput')
-    updateInstitutionInput: UpdateInstitutionInput,
+    @Args('id', { type: () => ID }) id: string,
+    @Args('input')
+    input: UpdateInstitutionInput,
   ): Promise<Institution | null> {
-    return this.institutionService.update(
-      updateInstitutionInput.id,
-      updateInstitutionInput,
-    );
+    return this.institutionService.update(id, input);
   }
 
   @Mutation(() => Boolean)
   @Roles(UserRole.ADMIN)
-  removeInstitution(
+  deleteInstitution(
     @Args('id', { type: () => ID }) id: string,
   ): Promise<boolean> {
-    return this.institutionService.remove(id);
+    return this.institutionService.delete(id);
   }
 }

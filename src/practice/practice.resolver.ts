@@ -30,9 +30,9 @@ export class PracticeResolver {
   @Mutation(() => Practice)
   @Roles(UserRole.ADMIN)
   async createPractice(
-    @Args('createPracticeInput') createPracticeInput: CreatePracticeInput,
+    @Args('input') input: CreatePracticeInput,
   ): Promise<Practice> {
-    return this.practiceService.create(createPracticeInput);
+    return this.practiceService.create(input);
   }
 
   @Query(() => [Practice], { name: 'practices' })
@@ -68,20 +68,18 @@ export class PracticeResolver {
   @Mutation(() => Practice)
   @Roles(UserRole.ADMIN)
   async updatePractice(
-    @Args('updatePracticeInput') updatePracticeInput: UpdatePracticeInput,
+    @Args('id', { type: () => ID }) id: string,
+    @Args('input') input: UpdatePracticeInput,
   ): Promise<Practice> {
-    return this.practiceService.update(
-      updatePracticeInput.id,
-      updatePracticeInput,
-    );
+    return this.practiceService.update(id, input);
   }
 
   @Mutation(() => Boolean)
   @Roles(UserRole.ADMIN)
-  async removePractice(
+  async deletePractice(
     @Args('id', { type: () => ID }) id: string,
   ): Promise<boolean> {
-    return this.practiceService.remove(id);
+    return this.practiceService.delete(id);
   }
 
   @ResolveField(() => [Protocol])

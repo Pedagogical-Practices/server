@@ -195,28 +195,28 @@ type Mutation {
   createForm(input: CreateFormInput!): Form!
   createGroup(input: CreateGroupInput!): Group!
   createGroupProtocolDeadline(input: CreateGroupProtocolDeadlineInput!): GroupProtocolDeadline!
-  createInstitution(createInstitutionInput: CreateInstitutionInput!): Institution!
+  createInstitution(input: CreateInstitutionInput!): Institution!
   createManyForms(createFormInputs: [CreateFormInput!]!): [Form!]!
   createNewFormVersion(formId: ID!): Form!
-  createPractice(createPracticeInput: CreatePracticeInput!): Practice!
+  createPractice(input: CreatePracticeInput!): Practice!
   createProtocol(input: CreateProtocolInput!): Protocol!
   createSubmission(input: CreateSubmissionInput!): Submission!
   createUser(input: CreateUserInput!): User!
   deleteForm(id: ID!): Boolean!
   deleteGroup(id: ID!): Boolean!
   deleteGroupProtocolDeadline(id: ID!): Boolean!
+  deleteInstitution(id: ID!): Boolean!
+  deletePractice(id: ID!): Boolean!
   deleteProtocol(id: ID!): Boolean!
   deleteSubmission(id: ID!): Boolean!
   deleteUser(id: ID!): Boolean!
-  evaluateSubmission(feedback: String!, id: ID!, score: Float!): Submission!
+  evaluateSubmission(feedback: String!, id: ID!, score: Float!, status: String!): Submission!
   login(email: String!, password: String!): AuthPayload!
-  removeInstitution(id: ID!): Boolean!
-  removePractice(id: ID!): Boolean!
   updateForm(id: ID!, input: UpdateFormInput!): Form!
   updateGroup(id: ID!, input: UpdateGroupInput!): Group!
   updateGroupProtocolDeadline(id: ID!, input: UpdateGroupProtocolDeadlineInput!): GroupProtocolDeadline!
-  updateInstitution(updateInstitutionInput: UpdateInstitutionInput!): Institution
-  updatePractice(updatePracticeInput: UpdatePracticeInput!): Practice!
+  updateInstitution(id: ID!, input: UpdateInstitutionInput!): Institution
+  updatePractice(id: ID!, input: UpdatePracticeInput!): Practice!
   updateProtocol(id: ID!, input: UpdateProtocolInput!): Protocol!
   updateSubmission(id: ID!, input: UpdateSubmissionInput!): Submission!
   updateUser(id: ID!, input: UpdateUserInput!): User!
@@ -259,6 +259,7 @@ type Query {
   protocolsByIds(ids: [ID!]!): [Protocol!]!
   submission(id: ID!): Submission!
   submissions: [Submission!]!
+  submissionsByFormAndGroup(formId: ID!, groupId: ID!): [Submission!]!
   submissionsByGroup(groupId: ID!): [Submission!]!
   submissionsByStudent(studentId: ID!): [Submission!]!
   submissionsByStudentAndGroup(groupId: ID!, studentId: ID!): [Submission!]!
@@ -269,6 +270,7 @@ type Query {
 
 type Submission {
   createdAt: DateTime!
+  evaluationStatus: SubmissionStatus!
   feedback: String
   form: Form!
   formData: JSON!
@@ -278,6 +280,12 @@ type Submission {
   score: Float
   students: [User!]!
   updatedAt: DateTime!
+}
+
+enum SubmissionStatus {
+  APPROVED
+  NEEDS_REVISION
+  PENDING_REVIEW
 }
 
 input UpdateFormInput {
@@ -308,14 +316,12 @@ input UpdateGroupProtocolDeadlineInput {
 input UpdateInstitutionInput {
   address: String
   email: String
-  id: ID!
   name: String
   phone: String
 }
 
 input UpdatePracticeInput {
   description: String
-  id: ID!
   name: String
   protocols: [String!]
 }

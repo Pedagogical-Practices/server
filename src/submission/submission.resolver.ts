@@ -8,6 +8,7 @@ import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { UserRole } from '../common/enums/user-role.enum';
+import { SubmissionStatus } from '../common/enums/submission-status.enum';
 
 @Resolver(() => Submission)
 @UseGuards(AuthGuard)
@@ -42,13 +43,14 @@ export class SubmissionResolver {
 
   @Mutation(() => Submission)
   @UseGuards(RolesGuard)
-  @Roles(UserRole.TUTOR)
+  @Roles(UserRole.TUTOR, UserRole.ASSESSOR, UserRole.COORDINATOR)
   async evaluateSubmission(
     @Args('id', { type: () => ID }) id: string,
     @Args('score') score: number,
     @Args('feedback') feedback: string,
+    @Args('status') status: SubmissionStatus,
   ): Promise<Submission> {
-    return this.submissionService.evaluateSubmission(id, score, feedback);
+    return this.submissionService.evaluateSubmission(id, score, feedback, status);
   }
 
   @Query(() => [Submission])
@@ -67,7 +69,7 @@ export class SubmissionResolver {
 
   @Query(() => [Submission])
   @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.TUTOR)
+  @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.TUTOR, UserRole.STUDENT)
   async submissionsByGroup(
     @Args('groupId', { type: () => ID }) groupId: string,
   ): Promise<Submission[]> {
@@ -91,5 +93,15 @@ export class SubmissionResolver {
     @Args('groupId', { type: () => ID }) groupId: string,
   ): Promise<Submission[]> {
     return this.submissionService.findByStudentAndGroup(studentId, groupId);
+  }
+
+  @Query(() => [Submission])
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.TUTOR, UserRole.STUDENT)
+  async submissionsByFormAndGroup(
+    @Args('groupId', { type: () => ID }) groupId: string,
+    @Args('formId', { type: () => ID }) formId: string,
+  ): Promise<Submission[]> {
+    return this.submissionService.findByFormAndGroup(groupId, formId);
   }
 }

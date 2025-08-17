@@ -34,3 +34,7 @@ export class Protocol {
 
 export type ProtocolDocument = Protocol & Document;
 export const ProtocolSchema = SchemaFactory.createForClass(Protocol);
+
+ProtocolSchema.virtual('id').get(function() {
+  return this._id.toHexString();
+});

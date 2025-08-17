@@ -1,7 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { UserRole } from '../../common/enums/user-role.enum';
+
+export type UserDocument = User & Document;
 
 @ObjectType()
 @Schema({ timestamps: true })
@@ -49,3 +51,7 @@ export class User extends Document {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.virtual('id').get(function(this: UserDocument) {
+  return (this._id as Types.ObjectId).toHexString();
+});
