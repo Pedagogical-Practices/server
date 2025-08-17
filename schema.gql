@@ -108,7 +108,6 @@ type FormField {
   rules: [String!]
   specificType: String
   tag: String
-  text: String
   textAlign: String
   textDecoration: String
   textTransform: String
