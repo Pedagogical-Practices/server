@@ -3,6 +3,8 @@ import { Document, Types } from 'mongoose';
 import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { FormField } from './formfield.schema';
 
+export type FormDocument = Form & Document;
+
 @ObjectType()
 @Schema({ timestamps: true })
 export class Form extends Document {
@@ -37,5 +39,9 @@ export class Form extends Document {
 }
 
 export const FormSchema = SchemaFactory.createForClass(Form);
+
+FormSchema.virtual('id').get(function(this: FormDocument) {
+  return (this._id as Types.ObjectId).toHexString();
+});
 
 FormSchema.index({ name: 1 });

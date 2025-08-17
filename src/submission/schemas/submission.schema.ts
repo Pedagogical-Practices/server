@@ -6,6 +6,7 @@ import { Group } from '../../group/schemas/group.schema';
 import { User } from '../../auth/schemas/user.schema';
 import { Protocol } from '../../protocol/schemas/protocol.schema';
 import { Form } from '../../form/schemas/form.schema';
+import { SubmissionStatus } from '../../common/enums/submission-status.enum';
 
 @ObjectType()
 @Schema({ timestamps: true })
@@ -29,7 +30,6 @@ export class Submission extends Document {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Form', required: true })
   form: Types.ObjectId | Form;
 
-
   @Field(() => [User])
   @Prop({
     type: [{ type: MongooseSchema.Types.ObjectId, ref: 'User' }],
@@ -48,6 +48,14 @@ export class Submission extends Document {
   @Field({ nullable: true })
   @Prop({ required: false })
   feedback: string;
+
+  @Field(() => SubmissionStatus)
+  @Prop({
+    type: String,
+    enum: SubmissionStatus,
+    default: SubmissionStatus.PENDING_REVIEW,
+  })
+  evaluationStatus: SubmissionStatus;
 
   @Field()
   createdAt: Date;

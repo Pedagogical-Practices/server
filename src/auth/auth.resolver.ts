@@ -55,7 +55,7 @@ export class AuthResolver {
 
   @Query(() => User, { nullable: true })
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.TUTOR)
+  @Roles(UserRole.ADMIN, UserRole.COORDINATOR, UserRole.TUTOR, UserRole.STUDENT)
   async user(@Args('id', { type: () => ID }) id: string): Promise<User | null> {
     return this.authService.findOne(id);
   }

@@ -1,0 +1,5 @@
+export enum SubmissionStatus {
+  PENDING_REVIEW = "PENDING_REVIEW",
+  APPROVED = "APPROVED",
+  NEEDS_REVISION = "NEEDS_REVISION",
+}

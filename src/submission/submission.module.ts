@@ -5,9 +5,13 @@ import { SubmissionResolver } from './submission.resolver';
 import { SubmissionService } from './submission.service';
 import { Submission, SubmissionSchema } from './schemas/submission.schema';
 import { AuthModule } from 'src/auth/auth.module';
-import { GraphQLJSON } from 'graphql-type-json';
 import { GroupModule } from 'src/group/group.module';
 import { ProtocolModule } from '../protocol/protocol.module';
+import { GroupProtocolDeadlineModule } from '../group-protocol-deadline/group-protocol-deadline.module';
+import { registerEnumType } from '@nestjs/graphql';
+import { SubmissionStatus } from '../common/enums/submission-status.enum';
+
+registerEnumType(SubmissionStatus, { name: 'SubmissionStatus' });
 
 @Module({
   imports: [
@@ -17,6 +21,7 @@ import { ProtocolModule } from '../protocol/protocol.module';
     AuthModule,
     forwardRef(() => GroupModule),
     ProtocolModule,
+    GroupProtocolDeadlineModule, // Importar el módulo de fechas límite
   ],
   providers: [
     SubmissionResolver,
