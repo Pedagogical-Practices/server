@@ -42,7 +42,39 @@ export class SubmissionService {
       ),
       formData: createSubmissionInput.formData,
     });
-    return submission.save();
+    const createdSubmission = await submission.save();
+
+    // Explicitly populate and convert to plain object with string IDs
+    const populatedSubmission = await this.submissionModel.findById(createdSubmission._id)
+      .populate({
+        path: 'group',
+        options: { getters: true, virtuals: true }
+      })
+      .populate({
+        path: 'protocol',
+        options: { getters: true, virtuals: true }
+      })
+      .populate({
+        path: 'form',
+        options: { getters: true, virtuals: true }
+      })
+      .populate({
+        path: 'students',
+        options: { getters: true, virtuals: true }
+      })
+      .exec();
+
+    if (!populatedSubmission) {
+      throw new Error("Failed to retrieve created submission with populated fields.");
+    }
+
+    // Convert the fully populated document to a plain object, applying all getters/virtuals
+    const finalSubmissionObject = populatedSubmission.toObject({ getters: true, virtuals: true });
+
+    // Ensure the main submission ID is also a string (redundant but safe)
+    finalSubmissionObject.id = (populatedSubmission._id as Types.ObjectId).toString();
+
+    return finalSubmissionObject;
   }
 
   async update(
