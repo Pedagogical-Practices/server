@@ -210,7 +210,7 @@ type Mutation {
   deleteProtocol(id: ID!): Boolean!
   deleteSubmission(id: ID!): Boolean!
   deleteUser(id: ID!): Boolean!
-  evaluateSubmission(feedback: String!, id: ID!, score: Float!): Submission!
+  evaluateSubmission(feedback: String!, id: ID!, score: Float!, status: String!): Submission!
   login(email: String!, password: String!): AuthPayload!
   updateForm(id: ID!, input: UpdateFormInput!): Form!
   updateGroup(id: ID!, input: UpdateGroupInput!): Group!
@@ -270,6 +270,7 @@ type Query {
 
 type Submission {
   createdAt: DateTime!
+  evaluationStatus: SubmissionStatus!
   feedback: String
   form: Form!
   formData: JSON!
@@ -279,6 +280,12 @@ type Submission {
   score: Float
   students: [User!]!
   updatedAt: DateTime!
+}
+
+enum SubmissionStatus {
+  APPROVED
+  NEEDS_REVISION
+  PENDING_REVIEW
 }
 
 input UpdateFormInput {

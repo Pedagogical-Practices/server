@@ -8,6 +8,7 @@ import { Group } from '../group/schemas/group.schema';
 import { User } from '../auth/schemas/user.schema';
 import { Protocol } from '../protocol/schemas/protocol.schema';
 import { GroupProtocolDeadlineService } from '../group-protocol-deadline/group-protocol-deadline.service';
+import { SubmissionStatus } from '../common/enums/submission-status.enum';
 
 @Injectable()
 export class SubmissionService {
@@ -131,6 +132,7 @@ export class SubmissionService {
     id: string,
     score: number,
     feedback: string,
+    status: SubmissionStatus,
   ): Promise<Submission> {
     const submission = await this.submissionModel.findById(id);
 
@@ -140,6 +142,7 @@ export class SubmissionService {
 
     submission.score = score;
     submission.feedback = feedback;
+    submission.evaluationStatus = status;
 
     return submission.save();
   }
