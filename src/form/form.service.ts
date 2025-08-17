@@ -29,7 +29,16 @@ export class FormService {
     if (!form) {
       throw new NotFoundException(`Form #${id} not found`);
     }
-    return form;
+
+    const formObject = form.toObject({ getters: true, virtuals: true });
+    if (formObject.fields && formObject.fields.length > 0) {
+      formObject.fields = formObject.fields.map((field: any) => {
+        // Ensure each field is a plain object and not a Mongoose subdocument instance
+        return field.toObject ? field.toObject({ getters: true, virtuals: true }) : field;
+      });
+    }
+
+    return formObject;
   }
 
   async update(id: string, updateFormInput: UpdateFormInput): Promise<Form> {

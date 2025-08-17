@@ -37,7 +37,7 @@ export class InstitutionService {
     return updatedInstitution ? updatedInstitution.toObject({ getters: true }) : null;
   }
 
-  async remove(id: string): Promise<boolean> {
+  async delete(id: string): Promise<boolean> {
     const result = await this.institutionModel.deleteOne({ _id: id }).exec();
     return result.deletedCount > 0;
   }

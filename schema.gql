@@ -108,6 +108,7 @@ type FormField {
   rules: [String!]
   specificType: String
   tag: String
+  text: String
   textAlign: String
   textDecoration: String
   textTransform: String
@@ -195,28 +196,28 @@ type Mutation {
   createForm(input: CreateFormInput!): Form!
   createGroup(input: CreateGroupInput!): Group!
   createGroupProtocolDeadline(input: CreateGroupProtocolDeadlineInput!): GroupProtocolDeadline!
-  createInstitution(createInstitutionInput: CreateInstitutionInput!): Institution!
+  createInstitution(input: CreateInstitutionInput!): Institution!
   createManyForms(createFormInputs: [CreateFormInput!]!): [Form!]!
   createNewFormVersion(formId: ID!): Form!
-  createPractice(createPracticeInput: CreatePracticeInput!): Practice!
+  createPractice(input: CreatePracticeInput!): Practice!
   createProtocol(input: CreateProtocolInput!): Protocol!
   createSubmission(input: CreateSubmissionInput!): Submission!
   createUser(input: CreateUserInput!): User!
   deleteForm(id: ID!): Boolean!
   deleteGroup(id: ID!): Boolean!
   deleteGroupProtocolDeadline(id: ID!): Boolean!
+  deleteInstitution(id: ID!): Boolean!
+  deletePractice(id: ID!): Boolean!
   deleteProtocol(id: ID!): Boolean!
   deleteSubmission(id: ID!): Boolean!
   deleteUser(id: ID!): Boolean!
   evaluateSubmission(feedback: String!, id: ID!, score: Float!): Submission!
   login(email: String!, password: String!): AuthPayload!
-  removeInstitution(id: ID!): Boolean!
-  removePractice(id: ID!): Boolean!
   updateForm(id: ID!, input: UpdateFormInput!): Form!
   updateGroup(id: ID!, input: UpdateGroupInput!): Group!
   updateGroupProtocolDeadline(id: ID!, input: UpdateGroupProtocolDeadlineInput!): GroupProtocolDeadline!
-  updateInstitution(updateInstitutionInput: UpdateInstitutionInput!): Institution
-  updatePractice(updatePracticeInput: UpdatePracticeInput!): Practice!
+  updateInstitution(id: ID!, input: UpdateInstitutionInput!): Institution
+  updatePractice(id: ID!, input: UpdatePracticeInput!): Practice!
   updateProtocol(id: ID!, input: UpdateProtocolInput!): Protocol!
   updateSubmission(id: ID!, input: UpdateSubmissionInput!): Submission!
   updateUser(id: ID!, input: UpdateUserInput!): User!
@@ -309,14 +310,12 @@ input UpdateGroupProtocolDeadlineInput {
 input UpdateInstitutionInput {
   address: String
   email: String
-  id: ID!
   name: String
   phone: String
 }
 
 input UpdatePracticeInput {
   description: String
-  id: ID!
   name: String
   protocols: [String!]
 }
