@@ -15,6 +15,7 @@ import { GroupModule } from './group/group.module';
 import { InstitutionModule } from './institution/institution.module';
 import { GroupProtocolDeadlineModule } from './group-protocol-deadline/group-protocol-deadline.module';
 import { PracticeModule } from './practice/practice.module';
+import { GeminiModule } from './gemini/gemini.module';
 
 import { GraphQLJSON } from 'graphql-type-json';
 
@@ -47,6 +48,7 @@ import { GraphQLJSON } from 'graphql-type-json';
     // InstitutionModule,
     GroupProtocolDeadlineModule,
     PracticeModule,
+    GeminiModule,
   ],
   controllers: [AppController],
   providers: [AppService],
