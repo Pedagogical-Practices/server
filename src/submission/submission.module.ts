@@ -8,6 +8,8 @@ import { AuthModule } from 'src/auth/auth.module';
 import { GroupModule } from 'src/group/group.module';
 import { ProtocolModule } from '../protocol/protocol.module';
 import { GroupProtocolDeadlineModule } from '../group-protocol-deadline/group-protocol-deadline.module';
+import { FormModule } from '../form/form.module';
+import { GeminiModule } from '../gemini/gemini.module';
 import { registerEnumType } from '@nestjs/graphql';
 import { SubmissionStatus } from '../common/enums/submission-status.enum';
 
@@ -22,6 +24,8 @@ registerEnumType(SubmissionStatus, { name: 'SubmissionStatus' });
     forwardRef(() => GroupModule),
     ProtocolModule,
     GroupProtocolDeadlineModule, // Importar el módulo de fechas límite
+    FormModule,
+    GeminiModule,
   ],
   providers: [
     SubmissionResolver,

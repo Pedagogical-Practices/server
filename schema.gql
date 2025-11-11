@@ -211,6 +211,7 @@ type Mutation {
   deleteSubmission(id: ID!): Boolean!
   deleteUser(id: ID!): Boolean!
   evaluateSubmission(feedback: String!, id: ID!, score: Float!, status: String!): Submission!
+  extractDataFromDocument(file: Upload!, formId: ID!): JSON!
   login(email: String!, password: String!): AuthPayload!
   updateForm(id: ID!, input: UpdateFormInput!): Form!
   updateGroup(id: ID!, input: UpdateGroupInput!): Group!
@@ -351,6 +352,9 @@ input UpdateUserInput {
   roles: [UserRole!]
   secondLastName: String
 }
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
 
 type User {
   createdAt: DateTime!

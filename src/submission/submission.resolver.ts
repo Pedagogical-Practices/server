@@ -9,11 +9,33 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { UserRole } from '../common/enums/user-role.enum';
 import { SubmissionStatus } from '../common/enums/submission-status.enum';
+import { GeminiService } from '../gemini/gemini.service';
+import { FormService } from '../form/form.service';
+import { GraphQLUpload, FileUpload } from 'graphql-upload-ts';
+import { default as GraphQLJSON } from 'graphql-type-json';
 
 @Resolver(() => Submission)
 @UseGuards(AuthGuard)
 export class SubmissionResolver {
-  constructor(private submissionService: SubmissionService) {}
+  constructor(
+    private submissionService: SubmissionService,
+    private readonly geminiService: GeminiService,
+    private readonly formService: FormService,
+  ) {}
+
+  @Mutation(() => GraphQLJSON)
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.STUDENT)
+  async extractDataFromDocument(
+    @Args('formId', { type: () => ID }) formId: string,
+    @Args('file', { type: () => GraphQLUpload }) file: FileUpload,
+  ): Promise<any> {
+    const formDefinition = await this.formService.findOne(formId);
+    if (!formDefinition) {
+      throw new Error('Formulario no encontrado');
+    }
+    return this.geminiService.extractDataFromDocument(formDefinition, file);
+  }
 
   @Mutation(() => Submission)
   @UseGuards(RolesGuard)
